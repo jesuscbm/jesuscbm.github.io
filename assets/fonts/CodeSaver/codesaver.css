@@ -1,0 +1,12 @@
+/* Variable fonts usage:
+:root { font-family: "Inter", sans-serif; }
+@supports (font-variation-settings: normal) {
+  :root { font-family: "InterVariable", sans-serif; font-optical-sizing: auto; }
+} */
+@font-face {
+  font-family: CodeSaver;
+  font-style: normal;
+  font-weight: 300 9;
+  font-display: swap;
+  src: url("CodeSaver-Regular.woff2") format("woff2");
+}

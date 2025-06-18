@@ -1,0 +1,219 @@
+@import url(../fonts/Inter/inter.css);
+@import url(../fonts/CodeSaver/codesaver.css);
+@import url(../fonts/Azeret_Mono/azeretmono.css);
+
+:root {
+  /* Tokyo Night */
+  --black: #15161e;
+  --light_grey: #c0caf5;
+  --dark_grey: #414868;
+  --white: #e0eaf5;
+  --red: #f7768e;
+  --green: #9ece6a;
+  --orange: #e0af68;
+  --blue: #7aa2f7;
+  --magenta: #bb9af7;
+  --cyan: #7dcfff;
+
+  --dark_blue: #5a52f7;
+
+  --bg: var(--black);
+  --bg2: var(--dark_grey);
+  --bg3: var(--cyan);
+  --bg4: var(--magenta);
+  --fg: var(--light_grey);
+  --fg2: var(--white);
+  --accent-bg: var(--dark_blue);
+  --accent-fg: var(--magenta);
+
+  --font-body: "CodeSaver", sans-serif;
+  --font-mono: "Azeret Mono", mono;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body.light {
+  --bg: var(--white);
+  --fg: var(--dark_grey);
+  --bg2: var(--light_grey);
+  --fg2: var(--black);
+  --bg3: var(--cyan);
+  --bg4: var(--magenta);
+  --accent-bg: var(--cyan);
+  --accent-fg: #3390ff;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+div {
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+
+.layout {
+  display: grid;
+  gap: 5px 5px;
+  text-align: center;
+}
+
+/* Small note:
+ * fr - fraction
+ * vw - % of viewport width
+ * vh - % of viewport height
+ */
+
+header {
+  grid-area: header;
+  align-items: center;
+  grid-template-columns: auto 1fr auto; 
+  grid-template-areas: "toggleDarkmode . nav";
+  display: grid;
+  color: var(--fg);
+  background-color: var(--bg2);
+  border-radius: 0px;
+  padding: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* subtle shadow */
+  height: fit-content;
+  width: 100%;
+  position: fixed;
+  transition:
+    background 0.3s,
+    color 0.3s,
+    transform 0.3s ease;
+}
+
+header.hide {
+  transform: translateY(-100%);
+}
+
+nav {
+  grid-area: nav;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+}
+
+nav a {
+  display: flex;
+  flex-grow: 1;
+  height: inherit;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  margin: 0 5px;
+  color: var(--accent-fg);
+  padding: 5px;
+}
+
+nav a:hover {
+  font-weight: bold;
+  background-color: var(--accent-bg);
+  scale: 1.1;
+  transition: scale 0.1s ease;
+}
+
+
+.main {
+  text-align: center;
+  font-size: 3em;
+  font-weight: 900;
+}
+
+button {
+  background-color: var(--accent-bg);
+  border: none;
+  color: var(--accent-bg);
+  padding: 5px;
+  text-align: center;
+  align-items: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 2px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--accent-fg);
+}
+
+#toggleDarkMode {
+  grid-area: toggleDarkmode;
+  width: 40px;
+  height: 40px;
+  border: none;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+  display: inline-flex;
+  border-radius: 50%;
+  padding: 0;
+  margin: 10px;
+}
+
+a {
+  text-decoration: none;
+  color: var(--accent);
+  transition: color 0.3s ease;
+}
+
+/* TODO: Colors for a */
+a:hover {
+  color: var(--accent-hover);
+}
+
+a:visited {
+  color: var(--accent-visited);
+}
+
+section {
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+}
+
+.landing {
+  background-color: var(--bg2);
+  color: var(--fg);
+  padding: 5px 10px 5px 10px;
+}
+
+.section2 {
+  background-color: var(--bg3);
+  color: var(--fg2);
+  padding: 5px 10px 5px 10px;
+}
+
+.section3 {
+  background-color: var(--bg4);
+  color: var(--fg2);
+  padding: 5px 10px 5px 10px;
+}
+
+/*
+ * Phones
+ */
+@media (max-width: 768px) {
+  body {
+    margin: 5px 0;
+  }
+
+  .main {
+    margin: 0;
+  }
+}
