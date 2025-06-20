@@ -35,6 +35,9 @@ if (!localStorage.getItem("theme")) {
 if (localStorage.getItem("theme") === "light") {
   body.classList.add("light");
   toggleIcon(true);
+} else {
+  body.classList.remove("light");
+  toggleIcon(false);
 }
 
 toggle.addEventListener("click", () => {
