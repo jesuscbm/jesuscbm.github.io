@@ -147,3 +147,30 @@ toggle.addEventListener("click", () => {
   localStorage.setItem("theme", isLight ? "light" : "dark");
   toggleIcon(isLight);
 });
+
+
+/* Filtering cards */
+const filters = document.querySelectorAll(".filter");
+const cards = document.querySelectorAll(".card");
+const container = document.querySelector(".container");
+
+filters.forEach((filter) => {
+  filter.addEventListener("click", () => {
+    const category = filter.getAttribute("data-category");
+    cards.forEach((card) => {
+      if (category === "all" || card.getAttribute("data-category") === category) {
+        card.style.display = "block";
+      } else {
+        card.style.display = "none";
+      }
+    });
+  });
+});
+
+document.querySelector(".scroll.left").addEventListener("click", () => {
+  container.scrollBy({ left: -300, behavior: "smooth" });
+});
+
+document.querySelector(".scroll.right").addEventListener("click", () => {
+  container.scrollBy({ left: 300, behavior: "smooth" });
+});

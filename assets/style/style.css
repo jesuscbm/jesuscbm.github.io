@@ -58,6 +58,8 @@ body {
   background-color: var(--bg);
   color: var(--fg);
   font-family: var(--font-body);
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
   transition:
     background 0.3s,
     color 0.3s;
@@ -189,8 +191,8 @@ button:hover {
 }
 
 section {
-  scroll-snap-type: y mandatory;
-  overflow-y: scroll;
+  scroll-snap-type: mandatory;
+  scroll-snap-align: start;
 }
 
 .landing {
@@ -199,7 +201,6 @@ section {
   color: var(--fg);
   padding: 0 0 0 10px;
   min-height: 100vh;
-  scroll-snap-align: start;
   grid-template-columns: 2fr 1fr;
 }
 
@@ -243,7 +244,6 @@ section {
 
   background-color: var(--bg3);
   color: var(--fg2);
-  scroll-snap-align: start;
   padding: 5px 10px 5px 10px;
 }
 
@@ -298,7 +298,6 @@ section {
   align-items: center;
   justify-content: space-evenly;
   align-content: center;
-  scroll-snap-align: start;
   padding: 5px 10px 5px 10px;
   min-height: 100vh;
 }
@@ -362,13 +361,11 @@ section {
   width: 300px;
   height: 100px;
   border: 2px solid var(--light_grey);
-  transition:
-    all 0.3s;
+  transition: all 0.3s;
 }
 
 .orbit:hover p {
-  transition:
-    all .2s ease .3s;
+  transition: all 0.2s ease 0.3s;
   opacity: 1;
   margin-left: 8px;
   transform: translateX(0px);
@@ -376,17 +373,16 @@ section {
   height: auto;
 }
 
-
 .section4 {
   display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 2em auto;
   flex-direction: row;
-  background-color: var(--bg5);
+  /* TODO: Color */
+  background-color: var(--black);
   color: var(--fg2);
   align-items: center;
   align-content: center;
-  scroll-snap-align: start;
   padding: 5px 10px 5px 10px;
   min-height: 100vh;
 }
@@ -405,13 +401,14 @@ section {
 }
 
 .section4__buttons {
+  display: block;
   grid-column: 2;
   grid-row: 1;
   font-size: 1.4em;
   font-weight: 900;
   font-family: var(--font-body);
-  color: var(--fg);
   color: var(--fg2);
+  overflow: hidden;
   margin: 0;
 }
 
@@ -423,31 +420,93 @@ section {
   border-radius: 10px;
   background-color: var(--accent-bg);
   margin: 5px;
+  min-width: 3em;
+  text-align: center;
   cursor: pointer;
 }
 
 .section4__buttons li:hover {
-  background-color: var(--accent-bg2);
+  background-color: var(--bg2);
 }
 
 .section4__cards {
+  position: relative;
+  display: flex;
   grid-column: 2;
   grid-row: 2;
-  display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
   justify-content: space-around;
   align-items: center;
   align-content: center;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* TODO: Make it snap and mobile-friendly */
+.scroll {
+  display: inline-flex;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  margin: 5px;
+  align-items: center;
+  text-align: center;
+  align-content: center;
+  justify-content: center;
+  background-color: white;
+  z-index: 2;
+}
+
+.scroll.left {
+  right: 0;
+}
+
+.scroll.right {
+  left: 0;
+}
+
+.container {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  scroll-snap-type: x mandatory;
+}
+
+.container::before,
+.container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 60px;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.container::before {
+  left: 30px;
+  background: linear-gradient(to right, var(--black), transparent);
+}
+
+.container::after {
+  right: 30px;
+  background: linear-gradient(to left, var(--black), transparent);
 }
 
 .card {
-  width: 200px;
-  height: 200px;
+  width: 400px;
+  height: 400px;
   margin: 10px;
   border-radius: 10px;
   background-color: var(--black);
   overflow: hidden;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
 }
 
 .card img {

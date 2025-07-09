@@ -114,24 +114,78 @@
         <section id="section4">
           <div class="section4">
             <h2 class="appear">Projects</h2>
-            <ul class="section4__buttons appear"><li>C</li><li>Lua</li><li>Others</li></ul>
+            <ul class="section4__buttons appear">
+              <li class="filter" data-category="c">C</li>
+              <li class="filter" data-category="lua">Lua</li>
+              <li class="filter" data-category="others">Others</li>
+            </ul>
             <div class="section4__cards appear">
-              <div class="card">
-                <img src="assets/imgs/landing.jpg" alt="Landing" />
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
+              <button class="scroll left">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="black"
+                  width="24"
+                  height="24"
+                  class="size-6"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+                  />
+                </svg>
+              </button>
+              <div class="container">
+                <div class="card" data-category="c">
+                  <img src="assets/imgs/landing.jpg" alt="Landing" />
+                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
+                </div>
+                <div class="card" data-category="lua">
+                  <img src="assets/imgs/landing.jpg" alt="Landing" />
+                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
+                </div>
+                <div class="card" data-category="others">
+                  <img src="assets/imgs/landing.jpg" alt="Landing" />
+                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
+                </div>
+                <div class="card" data-category="others">
+                  <img src="assets/imgs/landing.jpg" alt="Landing" />
+                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
+                </div>
+                <div class="card" data-category="others">
+                  <img src="assets/imgs/landing.jpg" alt="Landing" />
+                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
+                </div>
+                <div class="card" data-category="others">
+                  <img src="assets/imgs/landing.jpg" alt="Landing" />
+                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
+                </div>
+                <div class="card" data-category="others">
+                  <img src="assets/imgs/landing.jpg" alt="Landing" />
+                  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
+                </div>
               </div>
-              <div class="card">
-                <img src="assets/imgs/landing.jpg" alt="Landing" />
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
-              </div>
-              <div class="card">
-                <img src="assets/imgs/landing.jpg" alt="Landing" />
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
-              </div>
-              <div class="card">
-                <img src="assets/imgs/landing.jpg" alt="Landing" />
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit</p>
-              </div>
+              <button class="scroll right">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="black"
+                  width="24"
+                  height="24"
+                  class="size-6"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         </section>
