@@ -1,6 +1,10 @@
+/* TODO: Fonts */
 @import url(../fonts/Inter/inter.css);
 @import url(../fonts/CodeSaver/codesaver.css);
 @import url(../fonts/Azeret_Mono/azeretmono.css);
+@import url(../fonts/Poppins/poppins.css);
+
+/* TODO: More than one file, this is bad structure */
 
 :root {
   /* Tokyo Night */
@@ -19,14 +23,14 @@
 
   --bg: var(--black);
   --bg2: var(--dark_grey);
-  --bg3: #4646BE;
-  --bg4: #691E87;
+  --bg3: #4646be;
+  --bg4: #691e87;
   --fg: var(--light_grey);
   --fg2: var(--white);
   --accent-bg: var(--dark_blue);
   --accent-fg: var(--magenta);
 
-  --font-body: "CodeSaver", sans-serif;
+  --font-body: "Poppins", sans-serif;
   --font-mono: "Azeret Mono", mono;
   --font-title: "Inter", sans-serif;
 }
@@ -50,7 +54,7 @@ body.light {
 
 body {
   margin: 0;
-  padding:0;
+  padding: 0;
   background-color: var(--bg);
   color: var(--fg);
   font-family: var(--font-body);
@@ -71,6 +75,12 @@ div {
   text-align: center;
 }
 
+.appear {
+  opacity: 0;
+  transform: translateX(0);
+  transition: all 0.5s ease;
+}
+
 /* Small note:
  * fr - fraction
  * vw - % of viewport width
@@ -78,9 +88,10 @@ div {
  */
 
 header {
+  z-index: 10;
   grid-area: header;
   align-items: center;
-  grid-template-columns: auto 1fr auto; 
+  grid-template-columns: auto 1fr auto;
   grid-template-areas: "toggleDarkmode . nav";
   display: grid;
   color: var(--fg);
@@ -140,11 +151,9 @@ nav a:hover {
   transition: scale 0.1s ease;
 }
 
-
 .main {
   text-align: center;
   font-size: 3em;
-  font-weight: 900;
 }
 
 button {
@@ -250,9 +259,9 @@ section {
 .section2__divider {
   align-content: center;
   justify-content: center;
-  background-image: linear-gradient(to right,
-  /* Rainbow: */
-    var(--red),
+  background-image: linear-gradient(
+    to right,
+    /* Rainbow: */ var(--red),
     var(--orange),
     var(--green),
     var(--cyan),
@@ -282,10 +291,169 @@ section {
 }
 
 .section3 {
+  display: flex;
+  flex-direction: column;
   background-color: var(--bg4);
   color: var(--fg2);
+  align-items: center;
+  justify-content: space-evenly;
+  align-content: center;
   scroll-snap-align: start;
   padding: 5px 10px 5px 10px;
+  min-height: 100vh;
+}
+
+.section3 h2 {
+  font-size: 1.4em;
+  font-weight: 900;
+  font-family: var(--font-title);
+  color: var(--fg);
+  color: var(--fg2);
+  margin: 0;
+}
+
+.section3__images {
+  width: calc(60vh + 40px);
+  height: calc(60vh + 40px);
+  display: flex; /* Only needed if you want flex layout */
+  justify-content: space-around;
+  align-items: center;
+  background: none;
+  overflow: visible;
+}
+
+.orbit {
+  display: flex;
+  color: var(--black);
+  position: absolute;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px;
+  border-radius: 10px;
+  transform-origin: 0 0;
+  background: var(--white);
+  width: 48px;
+  height: 48px;
+  transition:
+    width 0.3s,
+    height 0.3s;
+  overflow: hidden;
+}
+
+.orbit img {
+  margin: 0;
+  width: 40px;
+  height: 40px;
+}
+
+.orbit p {
+  font-size: 16px;
+  font-family: var(--font-title);
+  transition: all 0.1s;
+  opacity: 0;
+  margin-left: 0;
+  width: 0;
+  height: 0;
+  transform: translateX(-10px);
+}
+
+.orbit:hover {
+  z-index: 8;
+  width: 300px;
+  height: 100px;
+  border: 2px solid var(--light_grey);
+  transition:
+    all 0.3s;
+}
+
+.orbit:hover p {
+  transition:
+    all .2s ease .3s;
+  opacity: 1;
+  margin-left: 8px;
+  transform: translateX(0px);
+  width: auto;
+  height: auto;
+}
+
+
+.section4 {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  flex-direction: row;
+  background-color: var(--bg5);
+  color: var(--fg2);
+  align-items: center;
+  align-content: center;
+  scroll-snap-align: start;
+  padding: 5px 10px 5px 10px;
+  min-height: 100vh;
+}
+
+.section4 h2 {
+  grid-column: 1;
+  grid-row: span 2;
+  font-size: 1.4em;
+  font-weight: 900;
+  font-family: var(--font-title);
+  color: var(--fg);
+  color: var(--fg2);
+  margin: 0;
+  text-orientation: upright;
+  writing-mode: vertical-lr;
+}
+
+.section4__buttons {
+  grid-column: 2;
+  grid-row: 1;
+  font-size: 1.4em;
+  font-weight: 900;
+  font-family: var(--font-body);
+  color: var(--fg);
+  color: var(--fg2);
+  margin: 0;
+}
+
+.section4__buttons li {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 10px;
+  background-color: var(--accent-bg);
+  margin: 5px;
+  cursor: pointer;
+}
+
+.section4__buttons li:hover {
+  background-color: var(--accent-bg2);
+}
+
+.section4__cards {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+  align-content: center;
+}
+
+.card {
+  width: 200px;
+  height: 200px;
+  margin: 10px;
+  border-radius: 10px;
+  background-color: var(--black);
+  overflow: hidden;
+}
+
+.card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /*
@@ -294,6 +462,10 @@ section {
 @media (max-width: 768px) {
   body {
     margin: 5px 0;
+  }
+
+  header {
+    display: none;
   }
 
   .main {
