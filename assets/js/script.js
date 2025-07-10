@@ -1,32 +1,24 @@
 /* CODE TO HIDE HEADER AND SHOW ON SCROLL */
 let lastScrollPosition = window.scrollY;
-let animateItems = document.querySelectorAll(".appear");
-
-animateItems.forEach((item, i) => {
-  item.style.opacity = 0;
-  item.style.transform = "translateX(50%)";
-})
-
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.style.opacity = 1;
-      entry.target.style.transform = "translateX(0)";
-      observer.unobserve(entry.target);
-    }
-  });
-});
-
-animateItems.forEach(i => observer.observe(i));
+let scrollUpDistance = 0;
 
 window.addEventListener("scroll", () => {
   const header = document.querySelector("header");
-  if (window.scrollY > lastScrollPosition) {
+  const currentScroll = window.scrollY;
+
+  if (currentScroll > lastScrollPosition) {
     header.classList.add("hide");
+    scrollUpDistance = 0; // reset
   } else {
-    header.classList.remove("hide");
+    scrollUpDistance += lastScrollPosition - currentScroll;
+    if (scrollUpDistance > 200 || currentScroll === 0) {
+      // We only want to show the header if the user has scrolled up 200px
+      header.classList.remove("hide");
+      scrollUpDistance = 0;
+    }
   }
-  lastScrollPosition = window.scrollY;
+
+  lastScrollPosition = currentScroll;
 });
 
 /* CODE FOR THE ORBITING IMAGES */
@@ -148,8 +140,8 @@ toggle.addEventListener("click", () => {
   toggleIcon(isLight);
 });
 
-
 /* Filtering cards */
+
 const filters = document.querySelectorAll(".filter");
 const cards = document.querySelectorAll(".card");
 const container = document.querySelector(".container");
@@ -158,7 +150,10 @@ filters.forEach((filter) => {
   filter.addEventListener("click", () => {
     const category = filter.getAttribute("data-category");
     cards.forEach((card) => {
-      if (category === "all" || card.getAttribute("data-category") === category) {
+      if (
+        category === "all" ||
+        card.getAttribute("data-category") === category
+      ) {
         card.style.display = "block";
       } else {
         card.style.display = "none";
@@ -174,3 +169,35 @@ document.querySelector(".scroll.left").addEventListener("click", () => {
 document.querySelector(".scroll.right").addEventListener("click", () => {
   container.scrollBy({ left: 300, behavior: "smooth" });
 });
+
+cards.forEach((card) => {
+  card.addEventListener("mouseover", () => {
+    is_hovering = true;
+  });
+  card.addEventListener("mouseout", () => {
+    is_hovering = false;
+  });
+  card.addEventListener("click", () => {
+    if (is_hovering) return;
+    card.classList.toggle("active");
+  });
+});
+
+/* Animations to appear */
+
+let animateItems = document.querySelectorAll(".appear");
+
+animateItems.forEach((item, i) => {
+  item.classList.add("hidden");
+});
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.remove("hidden");
+      observer.unobserve(entry.target);
+    }
+  });
+});
+
+animateItems.forEach((i) => observer.observe(i));
