@@ -23,6 +23,11 @@
   .landing__text {
     position: absolute;
     inset: 0;
+    padding: 0;
+  }
+
+  .landing__text h2 {
+    font-size: 1.5em;
   }
 
   .landing__img {
@@ -53,5 +58,13 @@
   .section4 .section4__cards {
     grid-column: 1;
     grid-row: 3;
+  }
+
+  .section4 .container {
+    scroll-padding: 20px;
+  }
+
+  .card {
+    width: calc(100% - 20px);
   }
 }

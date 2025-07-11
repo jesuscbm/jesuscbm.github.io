@@ -21,10 +21,10 @@ window.addEventListener("scroll", () => {
   lastScrollPosition = currentScroll;
 });
 
-/* CODE FOR THE ORBITING IMAGES */
+/* CODE FOR THE ORBITING orbiters */
 
-const images = document.querySelectorAll(".orbit");
-const count = images.length;
+const orbiters = document.querySelectorAll(".orbiter");
+const count = orbiters.length;
 
 let vw = Math.max(
   document.documentElement.clientWidth || 0,
@@ -34,14 +34,14 @@ let vh = Math.max(
   document.documentElement.clientHeight || 0,
   window.innerHeight || 0,
 );
-// TODO: Work when resizing
+
 let measure = Math.min(vh, vw) < 450 ? "px" : vh > vw ? "vw" : "vh";
 let radius = Math.min(vh, vw) < 450 ? 150 : 30;
 const img_size = "45px";
 
-images.forEach((img, i) => {
+orbiters.forEach((orbiter, i) => {
   const angle = (i / count) * Math.PI * 2;
-  img.style.transform = `translateX(${radius * Math.cos(angle)}${measure}) translateY(${radius * Math.sin(angle)}${measure})`;
+  orbiter.style.transform = `translateX(${radius * Math.cos(angle)}${measure}) translateY(${radius * Math.sin(angle)}${measure})`;
 });
 
 let image_div = document.getElementById("section3__images");
@@ -69,13 +69,9 @@ function animate() {
     requestAnimationFrame(animate);
     return;
   }
-  images.forEach((image, i) => {
-    const angle = (i / count) * Math.PI * 2;
-    image.style.transform = `translateX(${radius * Math.cos(angle)}${measure}) translateY(${radius * Math.sin(angle)}${measure})`;
-  });
   for (let i = 0; i < count; i++) {
     const angle = (i / count) * Math.PI * 2 + angleOffset;
-    images[i].style.transform =
+    orbiters[i].style.transform =
       `translateX(${radius * Math.cos(angle)}${measure}) translateY(${radius * Math.sin(angle)}${measure})`;
   }
   requestAnimationFrame(animate);
@@ -87,18 +83,46 @@ function animate() {
 
 animate();
 
+function translateIfNeeded(orbit) {
+  const rect = orbit.getBoundingClientRect();
+  const space_right = window.innerWidth - rect.left;
+  // const space_left = rect.left;
+
+  if (rect.right - rect.left > 100) {
+    return;
+  }
+
+  if (space_right < 300) {
+    orbit.style.transform = `translateX(${- (300 - space_right)}px)`;
+  // } 
+  // else if (space_left < 300) {
+    // orbit.style.transform = `translateX(${(300 - space_left)}px)`;
+  } else {
+    orbit.style.transform = '';
+  }
+}
+
+const orbits = document.querySelectorAll(".orbit");
 let is_hovering = false;
-for (const image of images) {
-  image.addEventListener("mouseover", () => {
+for (const orbit of orbits) {
+  orbit.addEventListener("mouseover", () => {
     is_hovering = true;
+    translateIfNeeded(orbit);
     image_div.classList.add("not_orbiting");
+    orbit.parentElement.classList.add("active");
   });
-  image.addEventListener("mouseout", () => {
+
+  orbit.addEventListener("mouseout", () => {
     is_hovering = false;
     image_div.classList.remove("not_orbiting");
+    orbit.style.transform = "translate(0)";
+    orbit.parentElement.classList.remove("active");
   });
-  image.addEventListener("click", () => {
+  orbit.addEventListener("click", () => {
     if (is_hovering) return;
+    translateIfNeeded(orbit);
+    orbit.classList.toggle("active");
+    orbit.parentElement.classList.toggle("active");
     image_div.classList.toggle("not_orbiting");
   });
 }

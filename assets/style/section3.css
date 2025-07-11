@@ -20,30 +20,39 @@
 }
 
 .section3__images {
-  width: calc(60vh + 40px);
-  height: calc(60vh + 40px);
-  display: flex; /* Only needed if you want flex layout */
-  justify-content: space-around;
-  align-items: center;
-  background: none;
-  overflow: visible;
+  position: relative;
+}
+
+.orbiter {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -28px;
+  margin-top: -28px;
+  transform-origin: center center;
+  z-index: 0;
+  pointer-events: none;
+  transition: z-index 0.3s;
 }
 
 .orbit {
   display: flex;
-  position: absolute;
+  z-index: 1;
+  flex-direction: row;
   justify-content: space-around;
   align-items: center;
   padding: 8px;
   border-radius: 10px;
-  transform-origin: 0 0;
+  box-sizing: border-box;
+  transform-origin: center center;
   background: var(--light_grey);
   color: var(--dark_grey);
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   transition:
     width 0.3s,
     height 0.3s;
+  pointer-events: all;
   overflow: hidden;
 }
 
@@ -62,22 +71,29 @@
   width: 0;
   height: 0;
   transform: translateX(-10px);
+  pointer-events: auto;
 }
 
-.orbit:hover {
-  z-index: 8;
-  width: 300px;
+.orbiter.active {
+  z-index: 100;
+}
+
+.orbit:hover,
+.orbit.active {
+  z-index: 10;
+  width: min(300px, 100vw);
   height: 100px;
   border: 2px solid var(--light_grey);
   transition: all 0.3s;
 }
 
-.orbit:hover p {
+.orbit:hover p,
+.orbit.active p {
   transition: all 0.2s ease 0.3s;
   opacity: 1;
   margin-left: 8px;
   transform: translateX(0px);
   width: auto;
   height: auto;
+  pointer-events: none;
 }
-
