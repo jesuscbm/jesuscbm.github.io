@@ -1,0 +1,93 @@
+.landing {
+  position: relative;
+  box-sizing: border-box;
+  display: grid;
+  color: var(--fg);
+  padding: 0;
+  min-height: 100vh;
+  grid-template-columns: 2fr 1fr;
+}
+
+.landing::before {
+  /* light background */
+  content: "";
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  background: linear-gradient(to bottom, #e0eaf5, #f2f4f8);
+  z-index: -1;
+  transition: opacity 0.3s;
+}
+
+.landing::after {
+  /* dark background */
+  content: "";
+  position: absolute;
+  opacity: 1;
+  inset: 0;
+  background: linear-gradient(to bottom, #24283b, #1a1b26);
+  z-index: -1;
+  transition: opacity 0.3s;
+}
+
+body.light .landing::before {
+  opacity: 1;
+}
+body.light .landing::after {
+  /* With this we obtain a smooth transition between gradients */
+  opacity: 0;
+}
+
+.landing__img {
+  background-image: url("../imgs/landing.jpg");
+  background-position: center;
+  background-size: cover;
+  height: inherit;
+  color: var(--fg2);
+}
+
+.landing__text {
+  align-content: center;
+  justify-content: center;
+  color: var(--fg);
+  padding: 5px 10px 5px 10px;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+.landing__text h2 {
+  font-size: 2em;
+  font-weight: 900;
+  font-family: var(--font-title);
+  color: var(--fg);
+  color: var(--fg2);
+  margin: 0;
+}
+
+.landing__text h3 {
+  font-size: 1em;
+  font-weight: 500;
+  font-family: var(--font-title);
+  color: var(--fg);
+  color: var(--fg2);
+  margin: 0;
+}
+
+.socials {
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  bottom: 10px;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  gap: 10px;
+  max-height: 50px;
+  color: var(--fg);
+}
+
+.socials svg {
+  width: 40px;
+  height: 40px;
+}
+
