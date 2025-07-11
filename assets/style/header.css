@@ -37,6 +37,7 @@ a:hover {
 
 nav {
   grid-area: nav;
+  font-family: var(--font-title);
   overflow: hidden;
   display: flex;
   align-items: center;

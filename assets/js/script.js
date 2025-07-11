@@ -93,12 +93,12 @@ function translateIfNeeded(orbit) {
   }
 
   if (space_right < 300) {
-    orbit.style.transform = `translateX(${- (300 - space_right)}px)`;
-  // } 
-  // else if (space_left < 300) {
+    orbit.style.transform = `translateX(${-(300 - space_right)}px)`;
+    // }
+    // else if (space_left < 300) {
     // orbit.style.transform = `translateX(${(300 - space_left)}px)`;
   } else {
-    orbit.style.transform = '';
+    orbit.style.transform = "";
   }
 }
 
@@ -166,6 +166,19 @@ toggle.addEventListener("click", () => {
 
 /* Filtering cards */
 
+function updateScrollers() {
+  if (container.scrollLeft <= 30) {
+    scrollLeft.classList.add("hidden");
+  } else {
+    scrollLeft.classList.remove("hidden");
+  }
+  if (Math.abs(container.scrollLeft + container.offsetWidth - container.scrollWidth) < 30) {
+    scrollRight.classList.add("hidden");
+  } else {
+    scrollRight.classList.remove("hidden");
+  }
+}
+
 const filters = document.querySelectorAll(".filter");
 const cards = document.querySelectorAll(".card");
 const container = document.querySelector(".container");
@@ -183,16 +196,26 @@ filters.forEach((filter) => {
         card.style.display = "none";
       }
     });
+    updateScrollers();
   });
 });
 
-document.querySelector(".scroll.left").addEventListener("click", () => {
+const scrollLeft = document.querySelector(".scroll.left");
+const scrollRight = document.querySelector(".scroll.right");
+
+container.addEventListener("scroll", () => {
+  updateScrollers();
+});
+
+scrollLeft.addEventListener("click", () => {
   container.scrollBy({ left: -300, behavior: "smooth" });
 });
 
-document.querySelector(".scroll.right").addEventListener("click", () => {
+scrollRight.addEventListener("click", () => {
   container.scrollBy({ left: 300, behavior: "smooth" });
 });
+
+updateScrollers()
 
 cards.forEach((card) => {
   card.addEventListener("mouseover", () => {

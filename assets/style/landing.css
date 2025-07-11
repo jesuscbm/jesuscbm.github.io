@@ -6,6 +6,7 @@
   padding: 0;
   min-height: 100vh;
   grid-template-columns: 2fr 1fr;
+  overflow-y: hidden;
 }
 
 .landing::before {

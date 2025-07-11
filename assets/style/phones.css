@@ -2,12 +2,13 @@
  * Phones
  */
 @media (max-width: 768px) {
-  body {
-    margin: 0;
+  header {
+    border: none;
+    position: relative;
   }
 
-  header {
-    display: none;
+  header.hide {
+    transform: none;
   }
 
   .main {
@@ -15,7 +16,6 @@
   }
 
   .landing {
-    padding-top: 40px;
     grid-template-columns: auto;
     grid-template-rows: auto auto;
   }
@@ -61,10 +61,14 @@
   }
 
   .section4 .container {
-    scroll-padding: 20px;
+    box-sizing: border-box;
+    scroll-snap-type: x mandatory;
+    justify-content: space-around;
+    gap: 10%;
   }
 
   .card {
-    width: calc(100% - 20px);
+    width: 90%;
+    scroll-snap-align: center;
   }
 }
