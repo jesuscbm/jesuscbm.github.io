@@ -1,5 +1,6 @@
 .section4 {
   display: grid;
+  z-index: 1;
   grid-template-rows: auto 1fr;
   grid-template-columns: 2em auto;
   flex-direction: row;
@@ -42,7 +43,7 @@
 .section4__buttons button {
   color: var(--accent-fg);
   display: inline-block;
-  font-size: 16px;
+  font-size: 1.2rem;
   font-weight: 500;
   padding: 5px 10px;
   border-radius: 10px;
@@ -70,8 +71,8 @@
   align-items: center;
   align-content: center;
   width: 100%;
-  max-width: 100%;
-  min-height: 450px;
+  max-width: 100vw;
+  min-height: fit-content;
   overflow-x: hidden;
 }
 
@@ -121,9 +122,8 @@
   scroll-behavior: smooth;
   gap: 1rem;
   width: 100%;
-  padding: 2%;
-  max-width: 100%;
-  height: 440px;
+  padding: 5%;
+  height: auto;
   scroll-snap-type: x mandatory;
   justify-content: left;
   scroll-padding: 30px;
@@ -135,11 +135,11 @@
   align-items: center;
   align-content: center;
   justify-content: center;
-  width: 400px;
-  height: 400px;
+  width: 25vw;
+  height: 25vw;
   box-sizing: border-box;
-  margin: 10px;
-  border-radius: 10px;
+  margin: 1vw;
+  border-radius: 1vw;
   background-color: var(--accent-bg);
   color: var(--accent-fg);
   overflow: hidden;
@@ -158,7 +158,7 @@
   color: var(--fg2);
   background-color: color-mix(in srgb, var(--bg) 70%, transparent);
   text-align: center;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 500;
   font-family: var(--font-title);
   transition: all 0.3s ease;

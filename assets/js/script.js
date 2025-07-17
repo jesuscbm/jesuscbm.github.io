@@ -167,7 +167,7 @@ toggle.addEventListener("click", () => {
 /* Filtering cards */
 
 function updateScrollers() {
-  if (container.scrollLeft <= 30) {
+  if (container.scrollLeft <= 60) {
     scrollLeft.classList.add("hidden");
   } else {
     scrollLeft.classList.remove("hidden");
