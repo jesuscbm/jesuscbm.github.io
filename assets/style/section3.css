@@ -8,7 +8,7 @@
   align-content: center;
   padding: 5px 10px 5px 10px;
   min-block-size: 130vh;
-  overflow-y: visible;
+  overflow-x: hidden;
 }
 
 .section3 h2 {
@@ -28,8 +28,8 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-left: -2vw;
-  margin-top: -2vw;
+  margin-left: min(-2vw, -28px);
+  margin-top: min(-2vw, -28px);
   transform-origin: center center;
   z-index: 0;
   pointer-events: none;
@@ -38,6 +38,7 @@
 
 .orbit {
   display: flex;
+  position: absolute;
   z-index: 1;
   flex-direction: row;
   justify-content: space-around;
@@ -47,13 +48,12 @@
   transform-origin: center center;
   background: var(--light_grey);
   color: var(--dark_grey);
-  min-width: max(56px, 4vw);
-  max-width: max(56px, 4vw);
+  width: max(56px, 4vw);
   max-height: max(56px, 4vw);
   transition:
-    min-width 0.3s ease 0.1s,
-    max-width 0.3s ease 0.1s,
-    max-height 0.3s ease 0.1s;
+    width 0.3s ease 0.1s,
+    max-height 0.3s ease 0.1s,
+    transform 0.3s ease 0.1s;
   pointer-events: all;
   overflow: hidden;
 }
@@ -62,18 +62,17 @@
   margin: max(8px, 0.5vw);
   width: max(40px, 3vw);
   height: max(40px, 3vw);
+  pointer-events: none;
 }
 
 .orbit_text {
   opacity: 0;
-  width: max(30vw, 200px);
-  padding: max(5px, 0.5vw);
+  width: calc(22rem - max(40px, 3vw) - 3 * max(8px, 0.5vw));
   flex-shrink: 0;
   flex-grow: 0;
   pointer-events: none;
   transform: translateX(-5vw);
   transition: all 0.3s ease 0.1s;
-  padding: max(8px, 0.5vw);
   overflow-y: auto;
 }
 
@@ -88,21 +87,20 @@
   font-family: var(--font-body);
 }
 
-.orbiter.active {
+.orbiter:hover {
   z-index: 100;
 }
 
 .orbit:hover,
 .orbit.active {
   z-index: 100;
-  min-width: 30vw;
-  max-width: min(35vw, 300px);
+  width: 22rem;
   max-height: 25vw;
   border: 2px solid var(--light_grey);
   transition:
-    min-width 0.2s,
-    max-width 0.2s,
-    max-height 0.2s;
+    width 0.2s,
+    max-height 0.2s,
+    transform 0.2s;
 }
 
 @media (max-width: 48em) {

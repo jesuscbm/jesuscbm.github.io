@@ -1,5 +1,5 @@
 .section2 {
-  display: flex;
+  display: none;
   flex-direction: row;
   min-height: 100vh;
 

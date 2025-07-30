@@ -84,48 +84,46 @@ function animate() {
 animate();
 
 function translateIfNeeded(orbit) {
-  const rect = orbit.getBoundingClientRect();
-  const space_right = window.innerWidth - rect.left;
-  // const space_left = rect.left;
-
-  if (rect.right - rect.left > 100) {
+  const orbitRect = orbit.getBoundingClientRect();
+  const offsetLeft = orbitRect.left;
+  if (orbit.classList.contains("active"))
     return;
-  }
-
-  if (space_right < 300) {
-    orbit.style.transform = `translateX(${-(300 - space_right)}px)`;
-    // }
-    // else if (space_left < 300) {
-    // orbit.style.transform = `translateX(${(300 - space_left)}px)`;
+  if (window.innerWidth < 760) {
+    orbit.style.transform = `translateX(-${offsetLeft}px)`;
   } else {
-    orbit.style.transform = "";
+    orbit.style.transform = `translateX(0)`;
   }
 }
 
 const orbits = document.querySelectorAll(".orbit");
-let is_hovering = false;
 for (const orbit of orbits) {
   orbit.addEventListener("mouseover", () => {
-    is_hovering = true;
-    translateIfNeeded(orbit);
     image_div.classList.add("not_orbiting");
-    orbit.parentElement.classList.add("active");
   });
 
   orbit.addEventListener("mouseout", () => {
-    is_hovering = false;
     image_div.classList.remove("not_orbiting");
-    orbit.style.transform = "translate(0)";
-    orbit.parentElement.classList.remove("active");
+    orbit.style.transform = 0;
   });
+
   orbit.addEventListener("click", () => {
-    if (is_hovering) return;
     translateIfNeeded(orbit);
-    orbit.classList.toggle("active");
-    orbit.parentElement.classList.toggle("active");
-    image_div.classList.toggle("not_orbiting");
+    image_div.classList.add("not_orbiting");
+    orbit.classList.add("active");
   });
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.addEventListener("click", (e) => {
+    let active = document.querySelectorAll(".active");
+    for (const a of active) {
+      if (e.target == a)
+        continue;
+      a.classList.remove("active");
+      a.style.transform = "translateX(0)";
+    }
+  });
+});
 
 /* CODE TO TOGGLE DARK MODE */
 
@@ -172,7 +170,11 @@ function updateScrollers() {
   } else {
     scrollLeft.classList.remove("hidden");
   }
-  if (Math.abs(container.scrollLeft + container.offsetWidth - container.scrollWidth) < 30) {
+  if (
+    Math.abs(
+      container.scrollLeft + container.offsetWidth - container.scrollWidth,
+    ) < 30
+  ) {
     scrollRight.classList.add("hidden");
   } else {
     scrollRight.classList.remove("hidden");
@@ -215,7 +217,7 @@ scrollRight.addEventListener("click", () => {
   container.scrollBy({ left: 300, behavior: "smooth" });
 });
 
-updateScrollers()
+updateScrollers();
 
 cards.forEach((card) => {
   card.addEventListener("mouseover", () => {

@@ -1,9 +1,7 @@
 .section4 {
-  display: grid;
+  display: flex;
   z-index: 1;
-  grid-template-rows: auto 1fr;
-  grid-template-columns: 2em auto;
-  flex-direction: row;
+  flex-direction: column;
   color: var(--fg2);
   align-items: center;
   align-content: center;
@@ -21,8 +19,6 @@
   color: var(--fg);
   color: var(--fg2);
   margin: 0;
-  text-orientation: upright;
-  writing-mode: vertical-lr;
 }
 
 .section4__buttons {
