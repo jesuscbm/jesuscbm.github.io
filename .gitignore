@@ -1,1 +1,3 @@
 *.session
+node_modules/
+*.json

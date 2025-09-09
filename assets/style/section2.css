@@ -1,5 +1,5 @@
 .section2 {
-  display: none;
+  display: flex;
   flex-direction: row;
   min-height: 100vh;
 
@@ -35,8 +35,7 @@
 }
 
 .uam_logo {
-  display: flex;
-  width: 17vw;
+  width: 15rem;
   align-content: center;
   align-self: center;
   flex-shrink: 0;
