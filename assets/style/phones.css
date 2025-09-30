@@ -72,4 +72,13 @@
     height: 80vw;
     scroll-snap-align: center;
   }
+
+  .card_link {
+    display: none;
+  }
+
+  .card.active .card_link,
+  .card:hover .card_link {
+    display: none;
+  }
 }

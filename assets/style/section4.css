@@ -51,11 +51,13 @@
   transition: scale 0.1s ease;
 }
 
-.section4__buttons button:hover {
+.section4__buttons button:hover,
+.section4__buttons button.active_filter {
   font-weight: bold;
   background-color: var(--accent-bg);
   scale: 1.1;
 }
+
 
 .section4__cards {
   position: relative;
@@ -168,6 +170,18 @@
 .card.active .card__text,
 .card:hover .card__text {
   transform: translateY(0);
+}
+
+.card_link {
+  position: absolute;
+  font: unset;
+  inset: 0;
+  display: none;
+}
+
+.card.active .card_link,
+.card:hover .card_link {
+  display: block;
 }
 
 .card img {

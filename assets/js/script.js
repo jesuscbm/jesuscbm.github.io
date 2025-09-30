@@ -64,7 +64,9 @@ window.addEventListener("resize", () => {
 });
 
 let angleOffset = 0;
-function animate() {
+const frameDuration = 10;
+let lastTime = 0;
+function animate(ts) {
   if (image_div.classList.contains("not_orbiting")) {
     requestAnimationFrame(animate);
     return;
@@ -75,9 +77,12 @@ function animate() {
       `translateX(${radius * Math.cos(angle)}${measure}) translateY(${radius * Math.sin(angle)}${measure})`;
   }
   requestAnimationFrame(animate);
-  angleOffset += 0.01;
-  if (angleOffset > Math.PI * 2) {
-    angleOffset -= Math.PI * 2;
+  if (ts - lastTime >= frameDuration) {
+    angleOffset += 0.01;
+    if (angleOffset > Math.PI * 2) {
+      angleOffset -= Math.PI * 2;
+    }
+    lastTime = ts;
   }
 }
 
@@ -86,8 +91,7 @@ animate();
 function translateIfNeeded(orbit) {
   const orbitRect = orbit.getBoundingClientRect();
   const offsetLeft = orbitRect.left;
-  if (orbit.classList.contains("active"))
-    return;
+  if (orbit.classList.contains("active")) return;
   if (window.innerWidth < 760) {
     orbit.style.transform = `translateX(-${offsetLeft}px)`;
   } else {
@@ -117,8 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
   document.addEventListener("click", (e) => {
     let active = document.querySelectorAll(".active");
     for (const a of active) {
-      if (e.target == a)
-        continue;
+      if (e.target == a) continue;
       a.classList.remove("active");
       a.style.transform = "translateX(0)";
     }
@@ -164,8 +167,12 @@ toggle.addEventListener("click", () => {
 
 /* Filtering cards */
 
+const filters = document.querySelectorAll(".filter");
+const cards = document.querySelectorAll(".card");
+const container = document.querySelector(".container");
+
 function updateScrollers() {
-  if (container.scrollLeft <= 60) {
+  if (container.scrollLeft <= cards[0].offsetWidth / 2) {
     scrollLeft.classList.add("hidden");
   } else {
     scrollLeft.classList.remove("hidden");
@@ -181,10 +188,6 @@ function updateScrollers() {
   }
 }
 
-const filters = document.querySelectorAll(".filter");
-const cards = document.querySelectorAll(".card");
-const container = document.querySelector(".container");
-
 filters.forEach((filter) => {
   filter.addEventListener("click", () => {
     const category = filter.getAttribute("data-category");
@@ -198,6 +201,11 @@ filters.forEach((filter) => {
         card.style.display = "none";
       }
     });
+    filters.forEach((f) => {
+      if (f != filter)
+        f.classList.remove("active_filter")
+    })
+    filter.classList.add("active_filter")
     updateScrollers();
   });
 });
