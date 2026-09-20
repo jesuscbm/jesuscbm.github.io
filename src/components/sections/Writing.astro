@@ -1,0 +1,170 @@
+---
+import Icon from "@/components/Icon.astro";
+import { getPublishedPosts, postPath, postSlug } from "@/lib/blog";
+const posts = (await getPublishedPosts()).slice(0, 4);
+
+// Deterministic pseudo-hash from the slug, styled like a short commit hash.
+function shortHash(s: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193);
+  }
+  return (h >>> 0).toString(16).padStart(8, "0").slice(0, 7);
+}
+const dateFmt = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "2-digit",
+});
+---
+{
+  posts.length > 0 && (
+    <section id="writing" class="section">
+      <div class="container">
+        <div class="writing-head">
+          <div data-reveal>
+            <p class="eyebrow">writing</p>
+            <h2 class="section-title">git log --author=jesus</h2>
+          </div>
+          <a href="/blogs/" class="all-link" data-reveal>
+            all posts <Icon name="arrow" size={16} />
+          </a>
+        </div>
+
+        <ol class="log" data-reveal>
+          {posts.map((post) => (
+            <li class="log-row">
+              <a href={postPath(post)} class="log-link">
+                <span class="graph" aria-hidden="true">
+                  <span class="node" />
+                </span>
+                <span class="hash">{shortHash(postSlug(post))}</span>
+                <span class="body">
+                  <span class="title">{post.data.title}</span>
+                  <span class="meta">
+                    <time datetime={post.data.pubDate.toISOString()}>
+                      {dateFmt.format(post.data.pubDate)}
+                    </time>
+                    {post.data.tags.slice(0, 3).map((t) => (
+                      <span class="t">#{t}</span>
+                    ))}
+                    {post.data.draft && <span class="draft">draft</span>}
+                  </span>
+                </span>
+                <Icon name="arrow" size={15} class="go" />
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .writing-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .writing-head .section-title {
+    font-family: var(--font-mono);
+    font-size: clamp(1.3rem, 3.2vw, 1.9rem);
+    letter-spacing: -0.01em;
+  }
+  .all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--accent);
+  }
+  .all-link:hover :global(svg) { transform: translateX(3px); }
+  .all-link :global(svg) { transition: transform 0.2s ease; }
+
+  .log {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: color-mix(in srgb, var(--bg-2) 40%, transparent);
+  }
+  .log-row + .log-row { border-top: 1px solid var(--border); }
+  .log-link {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.85rem 1rem;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    transition: background 0.2s ease;
+  }
+  .log-link:hover { background: color-mix(in srgb, var(--accent) 8%, transparent); }
+  .graph {
+    position: relative;
+    width: 14px;
+    align-self: stretch;
+    display: flex;
+    justify-content: center;
+  }
+  .graph::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border-strong);
+  }
+  .log-row:first-child .graph::before { top: 50%; }
+  .log-row:last-child .graph::before { bottom: 50%; }
+  .node {
+    position: relative;
+    z-index: 1;
+    align-self: center;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+  }
+  .log-link:hover .node { box-shadow: 0 0 0 4px var(--accent-glow); }
+  .hash { color: var(--warn); font-size: 0.82rem; align-self: center; }
+  .body { min-width: 0; }
+  .title {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.02rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .log-link:hover .title { color: var(--accent); }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem 0.7rem;
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+    margin-top: 0.15rem;
+  }
+  .meta .t { color: var(--accent-3); opacity: 0.85; }
+  .meta .draft { color: var(--warn); }
+  .log-link :global(.go) {
+    color: var(--fg-dim);
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  .log-link:hover :global(.go) { color: var(--accent); transform: translateX(3px); }
+
+  @media (max-width: 560px) {
+    .log-link { grid-template-columns: auto 1fr auto; gap: 0.7rem; }
+    .hash { display: none; }
+  }
+</style>

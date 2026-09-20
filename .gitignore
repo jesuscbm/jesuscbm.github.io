@@ -1,0 +1,31 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# env / logs
+.env
+.env.production
+npm-debug.log*
+*.log
+
+# os
+.DS_Store
+
+# local verification scratch
+_verify.mjs
+_revealcheck.mjs
+
+# sensitive research — must never be committed (globs, so the repo does not
+# encode the specific slugs/CVE identifiers)
+report.txt
+src/content/blog/i2p*/
+src/content/blog/cve_*/
+
+# CV build inputs / assets
+cv_systems.*
+github-mark.svg
+logo.png
+jesus.pub

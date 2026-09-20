@@ -1,0 +1,94 @@
+---
+import { portfolio } from "@/data/portfolio";
+import Icon from "@/components/Icon.astro";
+import Logo from "@/components/Logo.astro";
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <Logo size={30} class="footer-mark" />
+      <div>
+        <p class="footer-name">Jesús Blázquez</p>
+        <p class="footer-tag">Systems · Security · Mathematics</p>
+      </div>
+    </div>
+
+    <nav class="footer-social" aria-label="Social links">
+      {
+        portfolio.socials.map((s) => (
+          <a href={s.url} aria-label={s.label} rel="me noopener" target={s.url.startsWith("http") ? "_blank" : undefined}>
+            <Icon name={s.icon} size={20} />
+          </a>
+        ))
+      }
+      <a href="/index.xml" aria-label="RSS feed">
+        <Icon name="rss" size={20} />
+      </a>
+    </nav>
+  </div>
+  <div class="container footer-legal">
+    <span>© {year} Jesús Blázquez</span>
+    <span class="mono">built static · deployed on GitHub Pages</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--border);
+    background: color-mix(in srgb, var(--bg-2) 55%, transparent);
+    padding-block: 2.5rem 1.5rem;
+    margin-top: 2rem;
+  }
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .footer-brand :global(.footer-mark) { color: var(--accent); }
+  .footer-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+  }
+  .footer-tag {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg-dim);
+  }
+  .footer-social {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .footer-social a {
+    display: inline-flex;
+    padding: 0.55rem;
+    border-radius: var(--radius-sm);
+    color: var(--fg-2);
+    border: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+  .footer-social a:hover {
+    color: var(--accent);
+    border-color: var(--border);
+    transform: translateY(-2px);
+  }
+  .footer-legal {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+    color: var(--fg-dim);
+    font-size: 0.82rem;
+  }
+  .footer-legal .mono { font-family: var(--font-mono); }
+</style>

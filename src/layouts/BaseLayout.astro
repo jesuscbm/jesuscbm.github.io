@@ -1,0 +1,167 @@
+---
+import "@fontsource-variable/space-grotesk";
+import "@fontsource-variable/inter";
+import "@fontsource-variable/jetbrains-mono";
+import "@/styles/global.css";
+
+import BaseHead from "@/components/BaseHead.astro";
+import Nav from "@/components/Nav.astro";
+import Footer from "@/components/Footer.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  type?: "website" | "article";
+  keywords?: string[];
+  article?: {
+    publishedTime?: string;
+    modifiedTime?: string;
+    tags?: string[];
+  };
+}
+const props = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead {...props} />
+    <script is:inline>
+      // Pre-paint: apply saved theme + mark JS-enabled before first paint so
+      // there is no flash and progressive enhancements can key off `.js`.
+      (function () {
+        try {
+          var t = localStorage.getItem("pref-theme");
+          if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+          else if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
+        } catch (e) {}
+        document.documentElement.classList.add("js");
+      })();
+    </script>
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      // ---- theme toggle ----
+      const root = document.documentElement;
+      const toggle = document.getElementById("theme-toggle");
+      toggle?.addEventListener("click", () => {
+        const isLight = root.getAttribute("data-theme") === "light";
+        const next = isLight ? "dark" : "light";
+        root.setAttribute("data-theme", next);
+        try {
+          localStorage.setItem("pref-theme", next);
+        } catch (e) {}
+      });
+
+      // ---- mobile menu ----
+      const menuBtn = document.getElementById("menu-toggle");
+      const menu = document.getElementById("mobile-menu");
+      menuBtn?.addEventListener("click", () => {
+        const open = menuBtn.getAttribute("aria-expanded") === "true";
+        menuBtn.setAttribute("aria-expanded", String(!open));
+        menuBtn.setAttribute("aria-label", open ? "Open menu" : "Close menu");
+        if (menu) menu.hidden = open;
+      });
+      menu?.querySelectorAll("a").forEach((a) =>
+        a.addEventListener("click", () => {
+          menuBtn?.setAttribute("aria-expanded", "false");
+          if (menu) menu.hidden = true;
+        }),
+      );
+
+      // ---- header: shadow on scroll + hide on scroll-down ----
+      const header = document.querySelector("[data-header]");
+      let lastY = window.scrollY;
+      const onScroll = () => {
+        const y = window.scrollY;
+        if (!header) return;
+        header.toggleAttribute("data-scrolled", y > 8);
+        if (y > lastY && y > 320) header.setAttribute("data-hidden", "");
+        else header.removeAttribute("data-hidden");
+        lastY = y;
+      };
+      window.addEventListener("scroll", onScroll, { passive: true });
+
+      // ---- reveal on scroll (skipped under reduced motion) ----
+      const prefersReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      const revealables = document.querySelectorAll("[data-reveal]");
+      if (prefersReduced || !("IntersectionObserver" in window)) {
+        revealables.forEach((el) => el.classList.add("is-visible"));
+      } else {
+        const io = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                const el = entry.target as HTMLElement;
+                const delay = el.dataset.revealDelay;
+                if (delay) el.style.transitionDelay = delay;
+                el.classList.add("is-visible");
+                io.unobserve(el);
+              }
+            });
+          },
+          { rootMargin: "0px 0px -8% 0px", threshold: 0.12 },
+        );
+        revealables.forEach((el) => io.observe(el));
+      }
+
+      // ---- decode + glitch for section headings ----
+      const GLYPHS = "!<>-_\\/[]{}=+*^?#01xØ§";
+      const titles = document.querySelectorAll<HTMLElement>(".section-title");
+      titles.forEach((el) => {
+        const final = el.textContent ?? "";
+        el.setAttribute("data-text", final);
+        el.classList.add("glitch");
+        if (prefersReduced || !("IntersectionObserver" in window)) {
+          el.classList.add("decoded");
+          return;
+        }
+        el.setAttribute("data-decode", "");
+      });
+      if (!prefersReduced && "IntersectionObserver" in window) {
+        const decode = (el: HTMLElement) => {
+          const final = el.getAttribute("data-text") ?? "";
+          const started = performance.now();
+          const step = () => {
+            const t = Math.min(1, (performance.now() - started) / 620);
+            const revealed = Math.floor(t * final.length);
+            let out = "";
+            for (let i = 0; i < final.length; i++) {
+              const ch = final[i];
+              if (i < revealed || ch === " ") out += ch;
+              else out += GLYPHS[(Math.random() * GLYPHS.length) | 0];
+            }
+            el.textContent = out;
+            if (t < 1) requestAnimationFrame(step);
+            else {
+              el.textContent = final;
+              el.classList.add("decoded");
+            }
+          };
+          requestAnimationFrame(step);
+        };
+        const dio = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) {
+                decode(e.target as HTMLElement);
+                dio.unobserve(e.target);
+              }
+            });
+          },
+          { threshold: 0.5 },
+        );
+        titles.forEach((el) => dio.observe(el));
+      }
+    </script>
+  </body>
+</html>

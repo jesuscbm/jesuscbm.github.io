@@ -1,0 +1,162 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Glyph from "@/components/Glyph.astro";
+import { GLYPH_GROUPS, GLYPH_LABELS } from "@/lib/glyphs";
+import { MARK } from "@/data/site";
+
+// Dev-only internal page: emit the route locally, but nothing in production.
+export function getStaticPaths() {
+  if (import.meta.env.PROD) return [];
+  return [{ params: { slug: undefined } }];
+}
+---
+<BaseLayout title="Marks | Jesús Blázquez" description="Logo / favicon concepts to compare.">
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">internal</p>
+      <h1 class="section-title">Marks</h1>
+      <p class="lede">
+        Four families: abstract geometry, Greek letterforms, pixel art, and
+        named figures. All pure SVG, monochrome, stroke-animatable, and legible
+        at favicon size. Pick one and set <code>MARK</code> in
+        <code>src/data/site.ts</code>; it propagates to the navbar, footer,
+        favicon and loading animation. Click a tile to replay its draw.
+      </p>
+
+      {
+        GLYPH_GROUPS.map((group) => (
+          <section class="mark-group">
+            <h2 class="group-title">{group.title}</h2>
+            <div class="mark-grid">
+              {group.names.map((name) => (
+                <button
+                  type="button"
+                  class:list={["mark-card", { live: name === MARK }]}
+                  data-replay
+                  aria-label={`Replay ${name}`}
+                >
+                  <span class="mark-stage">
+                    <Glyph name={name} size={92} animate={true} class="stage-mark" />
+                  </span>
+                  <span class="mark-foot">
+                    <span class="mark-name">{GLYPH_LABELS[name]}</span>
+                    <span class="mark-fav">
+                      <Glyph name={name} size={28} />
+                      <Glyph name={name} size={16} />
+                    </span>
+                  </span>
+                  {name === MARK && <span class="live-tag">live</span>}
+                  <code class="mark-id">{name}</code>
+                </button>
+              ))}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-replay]").forEach((card) => {
+    card.addEventListener("click", () => {
+      const svg = card.querySelector<SVGElement>(".stage-mark");
+      if (!svg) return;
+      svg.classList.remove("animate");
+      void (svg as unknown as HTMLElement).getBoundingClientRect().width;
+      svg.classList.add("animate");
+    });
+  });
+</script>
+
+<style>
+  .lede { color: var(--fg-2); max-width: 46rem; margin-top: 0.75rem; }
+  .lede code {
+    background: var(--bg-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.05em 0.35em;
+    font-size: 0.85em;
+  }
+  .mark-group { margin-top: 2.5rem; }
+  .group-title {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--accent-2);
+    letter-spacing: 0.04em;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .group-title::before { content: "// "; color: var(--fg-dim); }
+  .mark-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
+    gap: 1rem;
+  }
+  .mark-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    text-align: left;
+    overflow: hidden;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .mark-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+  .mark-card.live { border-color: var(--accent); }
+  .mark-stage {
+    display: grid;
+    place-items: center;
+    padding: 2rem;
+    color: var(--accent);
+    background:
+      radial-gradient(60% 60% at 50% 42%, var(--accent-glow), transparent 70%),
+      var(--bg-2);
+    border-bottom: 1px solid var(--border);
+  }
+  .mark-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.75rem 0.9rem;
+  }
+  .mark-name { font-family: var(--font-mono); font-size: 0.78rem; color: var(--fg); }
+  .mark-fav {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--fg-2);
+    flex: none;
+  }
+  .live-tag {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    color: #14151f;
+    background: var(--accent);
+    border-radius: 999px;
+    padding: 0.05rem 0.45rem;
+  }
+  .mark-id {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    font-size: 0.64rem;
+    color: var(--fg-dim);
+    background: color-mix(in srgb, var(--bg) 70%, transparent);
+    border-radius: 4px;
+    padding: 0.05rem 0.35rem;
+  }
+</style>

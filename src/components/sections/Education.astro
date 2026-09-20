@@ -1,0 +1,159 @@
+---
+import { portfolio } from "@/data/portfolio";
+import Icon from "@/components/Icon.astro";
+const { education, achievements } = portfolio;
+---
+<section id="education" class="section edu-section">
+  <div class="container edu-grid">
+    <div class="edu-col">
+      <p class="eyebrow" data-reveal>education</p>
+      <h2 class="section-title" data-reveal>Studies</h2>
+      <div class="edu-list">
+        {
+          education.map((item, i) => (
+            <details class="edu-item" data-reveal open={i === 0}>
+              <summary>
+                <span class="edu-bar" aria-hidden="true" />
+                <span class="edu-main">
+                  <span class="edu-top">
+                    <span class="edu-title">{item.title}</span>
+                    <span class="edu-date">{item.date}</span>
+                  </span>
+                  <span class="edu-school">
+                    {item.schoolUrl ? (
+                      <a href={item.schoolUrl} target="_blank" rel="noopener">{item.school}</a>
+                    ) : (
+                      item.school
+                    )}
+                  </span>
+                  {item.summary && <span class="edu-summary">{item.summary}</span>}
+                  {item.focus && item.focus.length > 0 && (
+                    <span class="edu-toggle" aria-hidden="true">
+                      focus areas <Icon name="chevron" size={14} class="edu-chevron" />
+                    </span>
+                  )}
+                </span>
+              </summary>
+              {item.focus && item.focus.length > 0 && (
+                <ul class="edu-focus">
+                  {item.focus.map((f) => <li>{f}</li>)}
+                </ul>
+              )}
+            </details>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="edu-col">
+      <p class="eyebrow" data-reveal>recognition</p>
+      <h2 class="section-title" data-reveal>Achievements</h2>
+      <dl class="ach" data-reveal>
+        {
+          achievements.map((a) => (
+            <div class="ach-row">
+              <dt>
+                <span class="ach-mark" aria-hidden="true">◆</span>
+                <span class="ach-title">{a.title}</span>
+                {a.year && <span class="ach-year">{a.year}</span>}
+              </dt>
+              <dd>{a.content}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  .edu-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+  .edu-list { margin-top: 2rem; display: grid; gap: 0.5rem; }
+  .edu-item { border-radius: var(--radius-sm); }
+  .edu-item summary {
+    display: flex;
+    gap: 0.9rem;
+    padding: 0.9rem 0.6rem;
+    list-style: none;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s ease;
+  }
+  .edu-item summary:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  .edu-item summary::-webkit-details-marker { display: none; }
+  .edu-bar {
+    flex: none;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--border-strong);
+    transition: background 0.2s ease;
+  }
+  .edu-item[open] .edu-bar,
+  .edu-item summary:hover .edu-bar { background: var(--accent); }
+  .edu-main { min-width: 0; flex: 1; }
+  .edu-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  .edu-title { font-family: var(--font-display); font-weight: 600; font-size: 1.06rem; }
+  .edu-date { font-family: var(--font-mono); font-size: 0.76rem; color: var(--fg-dim); white-space: nowrap; }
+  .edu-school { display: block; color: var(--accent-2); font-size: 0.9rem; margin-top: 0.2rem; }
+  .edu-summary { display: block; color: var(--fg-2); font-size: 0.9rem; margin-top: 0.5rem; }
+  .edu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.7rem;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--accent);
+  }
+  .edu-toggle :global(.edu-chevron) { transition: transform 0.25s ease; }
+  .edu-item[open] .edu-toggle :global(.edu-chevron) { transform: rotate(180deg); }
+  .edu-focus {
+    margin: 0.25rem 0 0.5rem;
+    padding: 0 0.6rem 0.4rem 2.1rem;
+    display: grid;
+    gap: 0.4rem;
+    color: var(--fg-2);
+    font-size: 0.9rem;
+    list-style: none;
+  }
+  .edu-focus li { position: relative; padding-left: 1.1rem; }
+  .edu-focus li::before {
+    content: "▹";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .edu-item[open] .edu-focus { animation: edu-open 0.3s ease; }
+  }
+  @keyframes edu-open {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .ach { margin-top: 2rem; display: grid; gap: 1.5rem; }
+  .ach-row { border-left: 1px solid var(--border); padding-left: 1.1rem; }
+  .ach-row dt {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    flex-wrap: wrap;
+  }
+  .ach-mark { color: var(--warn); font-size: 0.8rem; }
+  .ach-title { font-family: var(--font-display); font-weight: 600; font-size: 1.02rem; }
+  .ach-year { font-family: var(--font-mono); font-size: 0.76rem; color: var(--fg-dim); }
+  .ach-row dd { margin: 0.4rem 0 0; color: var(--fg-2); font-size: 0.92rem; }
+
+  @media (min-width: 900px) {
+    .edu-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>

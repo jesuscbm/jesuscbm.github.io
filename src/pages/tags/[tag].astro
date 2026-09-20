@@ -1,0 +1,61 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import Icon from "@/components/Icon.astro";
+import { getPublishedPosts, getAllTags, tagSlug } from "@/lib/blog";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+  const tags = await getAllTags();
+  return tags.map((t) => ({
+    params: { tag: t.slug },
+    props: {
+      tag: t.tag,
+      posts: posts.filter((p) => p.data.tags.some((x) => tagSlug(x) === t.slug)),
+    },
+  }));
+}
+
+const { tag, posts } = Astro.props;
+---
+<BaseLayout
+  title={`#${tag} | Jesús Blázquez`}
+  description={`Posts tagged ${tag}.`}
+>
+  <section class="section">
+    <div class="container">
+      <a href="/blogs/" class="back-link"><Icon name="arrow" size={16} class="flip" /> All writing</a>
+      <p class="eyebrow">tag</p>
+      <h1 class="section-title">#{tag}</h1>
+      <p class="count">{posts.length} post{posts.length === 1 ? "" : "s"}</p>
+      <div class="post-grid">
+        {posts.map((post, i) => <PostCard post={post} index={i} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--fg-2);
+    margin-bottom: 1rem;
+  }
+  .back-link:hover { color: var(--accent); }
+  .back-link :global(.flip) { transform: rotate(180deg); }
+  .count {
+    font-family: var(--font-mono);
+    color: var(--fg-dim);
+    margin-top: 0.4rem;
+  }
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+  }
+</style>

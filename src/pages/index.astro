@@ -1,0 +1,23 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/sections/Hero.astro";
+import About from "@/components/sections/About.astro";
+import Experience from "@/components/sections/Experience.astro";
+import Projects from "@/components/sections/Projects.astro";
+import Writing from "@/components/sections/Writing.astro";
+import Education from "@/components/sections/Education.astro";
+import Contact from "@/components/sections/Contact.astro";
+import { portfolio } from "@/data/portfolio";
+---
+<BaseLayout
+  title={`${portfolio.meta.title} · Systems, Security & Mathematics`}
+  description={portfolio.meta.description}
+>
+  <Hero />
+  <About />
+  <Experience />
+  <Projects />
+  <Education />
+  <Writing />
+  <Contact />
+</BaseLayout>

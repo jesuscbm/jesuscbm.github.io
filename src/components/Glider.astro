@@ -1,0 +1,109 @@
+---
+/**
+ * A Conway's Game of Life glider that flies in and lands (Option 2).
+ *
+ * It crawls in diagonally using the authentic 4-frame glider cycle, then
+ * settles onto frame 0 (the canonical glider) and stays. No Life engine needed:
+ * the 4 frames are hardcoded and the container translates from off-screen to
+ * home while cycling them. Reduced motion / no-JS => rendered already landed.
+ */
+interface Props {
+  size?: number;
+  class?: string;
+}
+const { size = 210, class: className } = Astro.props;
+
+// Canonical SE-moving glider, 4 generations, each in a 3x3 cell box.
+const FRAMES: [number, number][][] = [
+  [[1, 0], [2, 1], [0, 2], [1, 2], [2, 2]], // gen 0 (resting frame)
+  [[0, 0], [2, 0], [1, 1], [2, 1], [1, 2]], // gen 1
+  [[2, 0], [0, 1], [2, 1], [1, 2], [2, 2]], // gen 2
+  [[0, 0], [1, 1], [2, 1], [0, 2], [1, 2]], // gen 3
+];
+const CELL = 24; // svg units per cell (viewBox 0 0 72 72)
+const PAD = 2;
+const SIZE = 20;
+---
+<div class="glider-wrap" data-glider aria-hidden="true">
+  <svg
+    class:list={["glider", className]}
+    viewBox="0 0 72 72"
+    width={size}
+    height={size}
+    role="img"
+    aria-label="Glider"
+  >
+    {
+      FRAMES.map((cells, i) => (
+        <g data-frame={i} style={`opacity:${i === 0 ? 1 : 0}`}>
+          {cells.map(([c, r]) => (
+            <rect
+              x={c * CELL + PAD}
+              y={r * CELL + PAD}
+              width={SIZE}
+              height={SIZE}
+              rx="3"
+              fill="currentColor"
+            />
+          ))}
+        </g>
+      ))
+    }
+  </svg>
+</div>
+
+<script>
+  const wrap = document.querySelector<HTMLElement>("[data-glider]");
+  const svg = wrap?.querySelector<SVGElement>(".glider");
+  if (wrap && svg) {
+    const frames = [...svg.querySelectorAll<SVGGElement>("[data-frame]")];
+    const show = (i: number) =>
+      frames.forEach((g, k) => (g.style.opacity = k === i ? "1" : "0"));
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    show(0);
+
+    if (!reduce && frames.length === 4) {
+      const off = -320; // start up-left in px (glider moves down-right)
+      const moveT = 4500; // ms of travel (slow, graceful glide to home)
+      const fast = 85; // gen delay at the start of the flight
+      const slow = 340; // gen delay once it has settled (perpetual idle)
+
+      // place off-screen instantly, then glide home at a steady pace; the
+      // cycle (below) slows on approach so it reads as "settling in".
+      svg.style.transition = "none";
+      svg.style.transform = `translate(${off}px, ${off}px)`;
+      void svg.getBoundingClientRect().width; // reflow
+      svg.style.transition = `transform ${moveT}ms linear`;
+      svg.style.transform = "translate(0, 0)";
+
+      // The glider never stops living: it cycles its 4 generations forever,
+      // fast while flying in and slowing to a steady idle once it has arrived.
+      const start = performance.now();
+      let step = 0;
+      const nextDelay = () => {
+        const t = Math.min(1, (performance.now() - start) / moveT);
+        // front-loaded ramp (sqrt): reaches the slow idle speed well before it
+        // lands, so it is already cycling slowly "when getting there".
+        return fast + (slow - fast) * Math.sqrt(t);
+      };
+      const tick = () => {
+        step += 1;
+        show(step % 4);
+        window.setTimeout(tick, nextDelay());
+      };
+      window.setTimeout(tick, nextDelay());
+    }
+  }
+</script>
+
+<style>
+  .glider-wrap {
+    display: inline-flex;
+    color: inherit;
+  }
+  .glider {
+    display: block;
+    will-change: transform;
+  }
+</style>

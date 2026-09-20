@@ -1,0 +1,14 @@
+---
+// Renders the live mark selected in src/data/site.ts.
+import Glyph from "@/components/Glyph.astro";
+import { MARK } from "@/data/site";
+
+interface Props {
+  size?: number;
+  animate?: boolean;
+  title?: string;
+  class?: string;
+}
+const props = Astro.props;
+---
+<Glyph name={MARK} {...props} />

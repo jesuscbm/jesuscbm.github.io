@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" role="img" aria-label="Reactor architecture: a single epoll thread accepts connections and dispatches them to a worker pool through a lock-free MPMC ring buffer; workers send responses back to the sockets.">
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#7aa2f7"/>
+    </marker>
+    <marker id="arrowReturn" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#565f89"/>
+    </marker>
+    <style>
+      .box      { fill:#24283b; stroke:#3b4261; stroke-width:1.5; }
+      .cell     { fill:#1f2335; stroke:#3b4261; stroke-width:1; }
+      .cellHot  { fill:#bb9af7; stroke:#bb9af7; stroke-width:1; }
+      .title    { fill:#c0caf5; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:16px; font-weight:700; }
+      .sub      { fill:#a9b1d6; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+      .dim      { fill:#565f89; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; }
+      .label    { fill:#7aa2f7; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+      .labelDim { fill:#565f89; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+      .edge     { stroke:#7aa2f7; stroke-width:2; fill:none; }
+      .edgeDim  { stroke:#565f89; stroke-width:2; fill:none; stroke-dasharray:6 5; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="960" height="340" fill="#1a1b26"/>
+
+  <rect class="box" x="30"  y="140" width="150" height="80" rx="12"/>
+  <text class="title" x="105" y="176" text-anchor="middle">TCP sockets</text>
+  <text class="sub"   x="105" y="198" text-anchor="middle">(file descriptors)</text>
+
+  <rect class="box" x="260" y="140" width="180" height="80" rx="12"/>
+  <text class="title" x="350" y="176" text-anchor="middle">Main thread</text>
+  <text class="sub"   x="350" y="198" text-anchor="middle">epoll reactor</text>
+
+  <rect class="box" x="520" y="110" width="210" height="130" rx="12"/>
+  <text class="title" x="625" y="137" text-anchor="middle">Lock-free</text>
+  <text class="title" x="625" y="157" text-anchor="middle">MPMC queue</text>
+  <rect class="cell"    x="532" y="172" width="26" height="34" rx="4"/>
+  <rect class="cell"    x="564" y="172" width="26" height="34" rx="4"/>
+  <rect class="cell"    x="596" y="172" width="26" height="34" rx="4"/>
+  <rect class="cellHot" x="628" y="172" width="26" height="34" rx="4"/>
+  <rect class="cell"    x="660" y="172" width="26" height="34" rx="4"/>
+  <rect class="cell"    x="692" y="172" width="26" height="34" rx="4"/>
+  <text class="dim" x="625" y="228" text-anchor="middle">bounded ring buffer</text>
+
+  <rect class="box" x="790" y="80" width="140" height="200" rx="12"/>
+  <text class="title" x="860" y="108" text-anchor="middle">Worker pool</text>
+  <rect class="box" x="805" y="125" width="110" height="34" rx="9"/>
+  <text class="sub"   x="860" y="147" text-anchor="middle">worker</text>
+  <rect class="box" x="805" y="173" width="110" height="34" rx="9"/>
+  <text class="sub"   x="860" y="195" text-anchor="middle">worker</text>
+  <rect class="box" x="805" y="221" width="110" height="34" rx="9"/>
+  <text class="sub"   x="860" y="243" text-anchor="middle">worker</text>
+
+  <line class="edge" x1="180" y1="180" x2="258" y2="180" marker-end="url(#arrow)"/>
+  <text class="label" x="219" y="170" text-anchor="middle">event</text>
+
+  <line class="edge" x1="440" y1="180" x2="518" y2="180" marker-end="url(#arrow)"/>
+  <text class="label" x="479" y="170" text-anchor="middle">push</text>
+
+  <line class="edge" x1="730" y1="180" x2="788" y2="180" marker-end="url(#arrow)"/>
+  <text class="label" x="759" y="170" text-anchor="middle">pop</text>
+
+  <path class="edgeDim" d="M860,280 L860,316 L105,316 L105,222" marker-end="url(#arrowReturn)"/>
+  <text class="labelDim" x="482" y="308" text-anchor="middle">send() response</text>
+</svg>

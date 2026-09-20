@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.jesusblazquez.eu/sitemap.xml
+# AI/LLM overview: https://www.jesusblazquez.eu/llms.txt

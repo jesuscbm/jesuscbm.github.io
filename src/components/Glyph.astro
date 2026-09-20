@@ -1,0 +1,62 @@
+---
+import { GLYPH_PATHS, type GlyphName } from "@/lib/glyphs";
+import { MARK } from "@/data/site";
+
+interface Props {
+  name?: GlyphName;
+  size?: number;
+  animate?: boolean;
+  title?: string;
+  class?: string;
+  stroke?: number;
+}
+const {
+  name = MARK,
+  size = 40,
+  animate = false,
+  title = "Jesús Blázquez",
+  class: className,
+  stroke = 9,
+} = Astro.props;
+const inner = GLYPH_PATHS[name] ?? GLYPH_PATHS[MARK];
+---
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 100 100"
+  width={size}
+  height={size}
+  role="img"
+  aria-label={title}
+  class:list={["glyph", className, { animate }]}
+>
+  <g
+    fill="none"
+    stroke="currentColor"
+    stroke-width={stroke}
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    set:html={inner}
+  />
+</svg>
+
+<style>
+  .glyph { display: block; color: inherit; }
+  @media (prefers-reduced-motion: no-preference) {
+    .glyph.animate .d {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: glyph-draw 0.9s cubic-bezier(0.5, 0, 0.2, 1) forwards;
+    }
+    .glyph.animate .f {
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: glyph-pop 0.4s ease forwards 0.55s;
+    }
+  }
+  @keyframes glyph-draw { to { stroke-dashoffset: 0; } }
+  @keyframes glyph-pop {
+    from { opacity: 0; transform: scale(0.4); }
+    to { opacity: 1; transform: none; }
+  }
+</style>

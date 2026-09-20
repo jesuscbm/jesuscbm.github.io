@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Jesús Blázquez">
+  <style>
+    .bg { fill: #1a1b26; }
+    .fg { stroke: #bb9af7; }
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #f2f4f8; }
+      .fg { stroke: #5a52f7; }
+    }
+  </style>
+  <rect class="bg" x="4" y="4" width="92" height="92" rx="22" />
+  <g
+    class="fg"
+    fill="none"
+    stroke-width="9"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    transform="translate(50 50) scale(1.15) translate(-55 -50)"
+  >
+    <path d="M46 24 H64 A13 13 0 0 1 64 50 H50" />
+    <path d="M50 50 H64 A13 13 0 0 1 64 76 H46" />
+    <path d="M62 37 H46 A13 13 0 0 0 46 63 H62" />
+  </g>
+</svg>

@@ -1,0 +1,106 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Icon from "@/components/Icon.astro";
+import PostCard from "@/components/PostCard.astro";
+import { portfolio } from "@/data/portfolio";
+import { getRelatedPosts } from "@/lib/related";
+import "@/styles/prose.css";
+
+// A dedicated page exists only for projects that have a src/content/projects/
+// <id>.md entry. The id must match a project in portfolio.ts.
+export async function getStaticPaths() {
+  const entries = await getCollection("projects", ({ data }) =>
+    import.meta.env.PROD ? data.draft !== true : true,
+  );
+  return entries.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const meta = portfolio.projects.find((p) => p.id === entry.id);
+const related = await getRelatedPosts(entry.id);
+const badges = meta?.badges ?? entry.data.badges;
+const links = meta?.links ?? entry.data.links;
+---
+<BaseLayout
+  title={`${entry.data.title} | Jesús Blázquez`}
+  description={entry.data.description ?? meta?.blurb}
+>
+  <section class="section">
+    <div class="container proj">
+      <a href="/#projects" class="back-link"><Icon name="arrow" size={16} class="flip" /> All projects</a>
+      <p class="eyebrow">project</p>
+      <h1 class="section-title">{entry.data.title}</h1>
+      {
+        badges.length > 0 && (
+          <ul class="badges">
+            {badges.map((b) => <li class="tag">{b}</li>)}
+          </ul>
+        )
+      }
+      {
+        links.length > 0 && (
+          <div class="links">
+            {links.map((l) => (
+              <a href={l.url} class="btn btn-ghost" target="_blank" rel="noopener">
+                {l.label} <Icon name="external" size={15} />
+              </a>
+            ))}
+          </div>
+        )
+      }
+
+      <div class="prose proj-body">
+        <Content />
+      </div>
+
+      {
+        related.length > 0 && (
+          <section class="related">
+            <h2 class="section-title">Related writing</h2>
+            <div class="post-grid">
+              {related.map((post, i) => <PostCard post={post} index={i} />)}
+            </div>
+          </section>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .proj { max-width: 48rem; padding-top: 2rem; }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--fg-2);
+    margin-bottom: 1rem;
+  }
+  .back-link:hover { color: var(--accent); }
+  .back-link :global(.flip) { transform: rotate(180deg); }
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+  }
+  .links { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.25rem; }
+  .proj-body { margin-top: 2rem; }
+  .related { margin-top: 3.5rem; }
+  .related .section-title { font-size: 1.5rem; }
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+</style>

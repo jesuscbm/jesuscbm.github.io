@@ -1,0 +1,124 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { postPath } from "@/lib/blog";
+import Icon from "@/components/Icon.astro";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+  index?: number;
+}
+const { post, index = 0 } = Astro.props;
+const dateFmt = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+});
+---
+<article class="post-card card" data-reveal data-reveal-delay={`${(index % 3) * 90}ms`}>
+  <a href={postPath(post)} class="card-link" aria-label={post.data.title}></a>
+  <div class="pc-top">
+    <time datetime={post.data.pubDate.toISOString()}>
+      {dateFmt.format(post.data.pubDate)}
+    </time>
+    {post.data.draft && <span class="draft">draft</span>}
+  </div>
+  <h3 class="pc-title">{post.data.title}</h3>
+  {post.data.description && <p class="pc-desc">{post.data.description}</p>}
+  <div class="pc-foot">
+    <ul class="pc-tags">
+      {post.data.tags.slice(0, 3).map((t) => <li class="tag">{t}</li>)}
+    </ul>
+    <span class="pc-read">read <Icon name="arrow" size={15} /></span>
+  </div>
+</article>
+
+<style>
+  .post-card {
+    position: relative;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    height: 100%;
+    overflow: hidden;
+  }
+  .post-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      120% 120% at 100% 0%,
+      var(--accent-glow),
+      transparent 45%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .post-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow);
+  }
+  .post-card:hover::before { opacity: 1; }
+  .post-card:focus-within { border-color: var(--accent); }
+  .card-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .pc-top {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+  }
+  .draft {
+    color: var(--warn);
+    border: 1px solid var(--warn);
+    border-radius: 999px;
+    padding: 0 0.45rem;
+    font-size: 0.68rem;
+  }
+  .pc-title {
+    font-size: 1.2rem;
+    line-height: 1.25;
+  }
+  .pc-desc {
+    color: var(--fg-2);
+    font-size: 0.94rem;
+    flex: 1;
+  }
+  .pc-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: auto;
+  }
+  .pc-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .pc-tags .tag { font-size: 0.68rem; }
+  .pc-read {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent);
+    white-space: nowrap;
+    position: relative;
+    z-index: 2;
+  }
+  .post-card:hover .pc-read :global(svg) {
+    transform: translateX(3px);
+  }
+  .pc-read :global(svg) { transition: transform 0.2s ease; }
+</style>

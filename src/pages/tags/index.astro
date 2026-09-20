@@ -1,0 +1,38 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { getAllTags } from "@/lib/blog";
+const tags = await getAllTags();
+---
+<BaseLayout title="Tags | Jesús Blázquez" description="Browse posts by tag.">
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">index</p>
+      <h1 class="section-title">Tags</h1>
+      <ul class="tag-cloud" aria-label="All tags">
+        {
+          tags.map((t) => (
+            <li>
+              <a href={`/tags/${t.slug}/`} class="tag">
+                {t.tag} <span class="count">{t.count}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    list-style: none;
+    padding: 0;
+    margin-top: 2rem;
+  }
+  .tag-cloud .tag { font-size: 0.85rem; padding: 0.35rem 0.8rem; }
+  .tag-cloud .tag:hover { color: var(--accent); border-color: var(--accent); }
+  .tag-cloud .count { color: var(--fg-dim); }
+</style>

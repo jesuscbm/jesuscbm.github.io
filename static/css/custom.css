@@ -1,0 +1,21 @@
+/* Uniform project card thumbnails (the theme never fixed an image height,
+   so mixed aspect ratios made the grid ragged). */
+#projects .card .card-head {
+  height: 200px;
+  display: block;
+}
+
+#projects .card-img-top {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Reserve space for the hero image to avoid layout shift. */
+#hero .image img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}

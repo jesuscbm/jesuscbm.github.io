@@ -1,0 +1,77 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import { getPublishedPosts, getAllTags } from "@/lib/blog";
+
+const posts = await getPublishedPosts();
+const tags = await getAllTags();
+---
+<BaseLayout
+  title="Writing | Jesús Blázquez"
+  description="Notes on systems programming, security research, and the projects behind them."
+>
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">writing</p>
+      <h1 class="section-title">Notes &amp; write-ups</h1>
+      <p class="lede">
+        Long-form posts on systems programming, security research, and the
+        projects behind them.
+      </p>
+
+      {
+        tags.length > 0 && (
+          <ul class="tag-cloud" aria-label="Tags">
+            {tags.map((t) => (
+              <li>
+                <a href={`/tags/${t.slug}/`} class="tag">
+                  {t.tag} <span class="count">{t.count}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      {
+        posts.length === 0 ? (
+          <p class="empty">No posts published yet. Check back soon.</p>
+        ) : (
+          <div class="post-grid">
+            {posts.map((post, i) => <PostCard post={post} index={i} />)}
+          </div>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .lede {
+    color: var(--fg-2);
+    font-size: 1.1rem;
+    max-width: 40rem;
+    margin-top: 0.75rem;
+  }
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 1.75rem 0 0;
+  }
+  .tag-cloud .tag:hover { color: var(--accent); border-color: var(--accent); }
+  .tag-cloud .count { color: var(--fg-dim); }
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+  }
+  .empty {
+    margin-top: 2.5rem;
+    color: var(--fg-2);
+    font-family: var(--font-mono);
+  }
+</style>

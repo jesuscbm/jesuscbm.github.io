@@ -1,0 +1,127 @@
+/* Long-form article typography. Scoped under .prose. */
+.prose {
+  color: var(--fg);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  max-width: 44rem;
+}
+.prose > * + * {
+  margin-top: 1.15rem;
+}
+.prose h2,
+.prose h3,
+.prose h4 {
+  scroll-margin-top: 6rem;
+  line-height: 1.2;
+}
+.prose h2 {
+  font-size: 1.6rem;
+  margin-top: 2.6rem;
+  padding-top: 0.4rem;
+}
+.prose h3 {
+  font-size: 1.28rem;
+  margin-top: 2rem;
+}
+.prose h4 {
+  font-size: 1.08rem;
+  margin-top: 1.6rem;
+}
+/* autolinked headings (rehype-autolink wrap) */
+.prose :where(h2, h3, h4) a.heading-anchor {
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+}
+.prose :where(h2, h3, h4) a.heading-anchor:hover::before {
+  content: "#";
+  position: absolute;
+  left: -1.1em;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 400;
+}
+.prose p,
+.prose li {
+  color: var(--fg);
+}
+.prose a:not(.heading-anchor) {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+  transition: text-decoration-color 0.2s ease, color 0.2s ease;
+}
+.prose a:not(.heading-anchor):hover {
+  text-decoration-color: var(--accent);
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.4rem;
+}
+.prose li + li {
+  margin-top: 0.4rem;
+}
+.prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg-2));
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.12em 0.4em;
+  word-break: break-word;
+}
+.prose pre {
+  margin-block: 1.5rem;
+}
+.prose blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 0.4rem 0 0.4rem 1.15rem;
+  color: var(--fg-2);
+  font-style: italic;
+}
+.prose img {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  margin-inline: auto;
+  background: var(--bg-2);
+}
+.prose figure {
+  margin-block: 1.75rem;
+}
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin-block: 2.5rem;
+}
+/* tables */
+.prose .table-scroll {
+  overflow-x: auto;
+  margin-block: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.prose table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.92rem;
+}
+.prose th,
+.prose td {
+  padding: 0.6rem 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.prose thead th {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+.prose tbody tr:last-child td {
+  border-bottom: none;
+}
+.prose tbody tr:hover {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}

@@ -1,0 +1,402 @@
+/* ==========================================================================
+   Design tokens. Dark (Tokyo Night) is the default; it is the brand and the
+   no-JS / pre-paint state. Light mode is opt-in via [data-theme="light"].
+   ========================================================================== */
+:root {
+  /* Tokyo Night (dark), the default */
+  --bg: #1a1b26;
+  --bg-2: #24283b;
+  --bg-3: #2f334d;
+  --surface: rgba(36, 40, 59, 0.72);
+  --border: rgba(122, 162, 247, 0.16);
+  --border-strong: rgba(122, 162, 247, 0.32);
+  --fg: #c0caf5;
+  --fg-2: #a9b1d6;
+  --fg-dim: #7982a9;
+  --accent: #bb9af7; /* magenta/purple */
+  --accent-2: #7aa2f7; /* blue */
+  --accent-3: #7dcfff; /* cyan */
+  --accent-glow: rgba(187, 154, 247, 0.28);
+  --ok: #9ece6a;
+  --warn: #ff9e64;
+  --danger: #f7768e;
+
+  --grid-line: rgba(122, 162, 247, 0.06);
+  --shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.6);
+
+  --font-display: "Space Grotesk Variable", system-ui, sans-serif;
+  --font-body: "Inter Variable", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --maxw: 72rem;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --radius: 14px;
+  --radius-sm: 8px;
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  --bg: #f2f4f8;
+  --bg-2: #e0eaf5;
+  --bg-3: #d4e0f0;
+  --surface: rgba(255, 255, 255, 0.72);
+  --border: rgba(90, 82, 247, 0.16);
+  --border-strong: rgba(90, 82, 247, 0.3);
+  --fg: #2f3550;
+  --fg-2: #4c566a;
+  --fg-dim: #6b7394;
+  --accent: #5a52f7;
+  --accent-2: #2e7de9;
+  --accent-3: #0f7490;
+  --accent-glow: rgba(90, 82, 247, 0.22);
+  --ok: #587539;
+  --warn: #b15c00;
+  --danger: #c53b53;
+
+  --grid-line: rgba(90, 82, 247, 0.07);
+  --shadow: 0 10px 40px -14px rgba(48, 53, 80, 0.28);
+
+  color-scheme: light;
+}
+
+/* ---------- reset / base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+* {
+  margin: 0;
+}
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.65;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+  /* faint engineering grid, cheap and static */
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 46px 46px;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+}
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+a:hover {
+  color: var(--accent-3);
+}
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+code,
+kbd,
+pre {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+/* ---------- focus & a11y ---------- */
+:focus-visible {
+  outline: 2px solid var(--accent-3);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+.skip-link {
+  position: absolute;
+  left: 0.75rem;
+  top: -3rem;
+  z-index: 200;
+  background: var(--accent);
+  color: #12131c;
+  padding: 0.5rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  transition: top 0.2s ease;
+}
+.skip-link:focus {
+  top: 0.75rem;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- layout helpers ---------- */
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.section {
+  padding-block: clamp(3.5rem, 9vw, 6.5rem);
+  position: relative;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--accent-2);
+  text-transform: none;
+}
+.eyebrow::before {
+  content: "// ";
+  color: var(--fg-dim);
+}
+.section-title {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  margin-top: 0.4rem;
+}
+
+/* ---------- reusable bits ---------- */
+.tag,
+.badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  color: var(--fg-2);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+  white-space: nowrap;
+}
+.btn {
+  --btn-bg: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.7rem 1.25rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #14151f;
+  box-shadow: 0 0 0 0 var(--accent-glow);
+}
+.btn-primary:hover {
+  color: #14151f;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -6px var(--accent-glow);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--fg);
+  border-color: var(--border-strong);
+}
+.btn-ghost:hover {
+  color: var(--fg);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(6px);
+  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card:hover {
+  border-color: var(--border-strong);
+}
+
+/* ---------- reveal-on-scroll (progressive; visible without JS) ---------- */
+[data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: opacity, transform;
+}
+html.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---------- shiki dual-theme code blocks ---------- */
+.astro-code {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.15rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  tab-size: 2;
+}
+/* dark is default (no attribute) OR explicit dark -> use shiki dark vars */
+:root:not([data-theme="light"]) .astro-code,
+:root:not([data-theme="light"]) .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
+}
+
+/* ==========================================================================
+   Hacker layer: custom SVG cursor, scanlines, glitch + decode text.
+   All progressive and pointer/motion aware.
+   ========================================================================== */
+
+/* Custom crosshair cursor (pure SVG, no JS). Only on fine pointers so touch
+   and reading areas are unaffected. */
+@media (pointer: fine) {
+  body {
+    cursor: url("/cursor.svg") 14 14, auto;
+  }
+  a,
+  button,
+  summary,
+  label,
+  [role="button"],
+  .btn,
+  .tag {
+    cursor: url("/cursor-active.svg") 15 15, pointer;
+  }
+  /* reading + input areas keep a normal cursor */
+  .prose,
+  .prose *,
+  input,
+  textarea,
+  [contenteditable],
+  code {
+    cursor: auto;
+  }
+  .prose a {
+    cursor: url("/cursor-active.svg") 15 15, pointer;
+  }
+}
+
+/* Faint scanlines + vignette. Static, so it stays under reduced motion. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(122, 162, 247, 0.035) 0,
+    rgba(122, 162, 247, 0.035) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+:root[data-theme="light"] body::after {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(48, 53, 80, 0.04) 0,
+    rgba(48, 53, 80, 0.04) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.35;
+}
+/* keep content above the overlay */
+.site-header,
+main,
+.site-footer {
+  position: relative;
+  z-index: 2;
+}
+
+/* Glitch on hover for select headings/links. */
+.glitch {
+  position: relative;
+}
+@media (prefers-reduced-motion: no-preference) and (pointer: fine) {
+  .glitch:hover::before,
+  .glitch:hover::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    clip-path: inset(0 0 0 0);
+  }
+  .glitch:hover::before {
+    color: var(--accent-3);
+    animation: glitch-a 0.4s steps(2) 1;
+    left: 2px;
+  }
+  .glitch:hover::after {
+    color: var(--danger);
+    animation: glitch-b 0.4s steps(2) 1;
+    left: -2px;
+  }
+}
+@keyframes glitch-a {
+  0% { clip-path: inset(0 0 70% 0); transform: translate(0, -1px); }
+  50% { clip-path: inset(40% 0 20% 0); transform: translate(1px, 1px); }
+  100% { clip-path: inset(0 0 0 0); transform: none; opacity: 0; }
+}
+@keyframes glitch-b {
+  0% { clip-path: inset(60% 0 0 0); transform: translate(0, 1px); }
+  50% { clip-path: inset(10% 0 50% 0); transform: translate(-1px, -1px); }
+  100% { clip-path: inset(0 0 0 0); transform: none; opacity: 0; }
+}
+
+/* Decode text: elements start dimmed until JS resolves them; if JS never runs
+   or motion is reduced, they simply show normally. */
+html.js [data-decode]:not(.decoded) {
+  color: var(--fg-dim);
+}
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-decode]:not(.decoded) { color: inherit; }
+}
