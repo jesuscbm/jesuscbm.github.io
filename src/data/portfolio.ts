@@ -215,6 +215,18 @@ export const portfolio: Portfolio = {
       ],
     },
     {
+      title: "Sino-Euro Spring School 2026",
+      school: "Northwestern Polytechnical University (NPU)",
+      schoolUrl: "https://en.nwpu.edu.cn/",
+      date: "April 2026",
+      summary:
+        "Selected by GPA for NPU's 10-day Sino-Euro Spring School in Xi'An; course on Large Language Model foundations and applications.",
+      focus: [
+        "Decision Trees and Classical Machine Learning",
+        "Large Language Model Foundations",
+      ],
+    },
+    {
       title: "Professional Degree in Music (Oboe)",
       school: "Conservatorio Tomás de Torrejón y Velasco",
       date: "2013 – 2023",
@@ -268,6 +280,7 @@ export const portfolio: Portfolio = {
           url: "https://github.com/freebsd/freebsd-src/commits/main/?author=jesuscbm",
         },
       ],
+      relatedPosts: ["freebsd_libm"],
     },
     {
       id: "memory-allocator",
