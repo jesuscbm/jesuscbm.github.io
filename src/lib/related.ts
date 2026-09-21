@@ -1,6 +1,7 @@
 import { getCollection, type CollectionEntry } from "astro:content";
-import { portfolio, type Project } from "@/data/portfolio";
+import { portfolio, getPortfolio, type LocalizedProject } from "@/data/portfolio";
 import { getPublishedPosts, postSlug } from "@/lib/blog";
+import { DEFAULT_LANG, type Lang } from "@/i18n";
 
 /**
  * Resolve project <-> blog relations bidirectionally at build time.
@@ -26,13 +27,14 @@ export async function getRelatedPosts(
 /** Projects related to a given post (both directions). */
 export async function getRelatedProjects(
   post: CollectionEntry<"blog">,
-): Promise<Project[]> {
+  lang: Lang = DEFAULT_LANG,
+): Promise<LocalizedProject[]> {
   const slug = postSlug(post);
   const ids = new Set<string>(post.data.projects.map((ref) => ref.id));
   for (const project of portfolio.projects) {
     if (project.relatedPosts?.includes(slug)) ids.add(project.id);
   }
-  return portfolio.projects.filter((p) => ids.has(p.id));
+  return getPortfolio(lang).projects.filter((p) => ids.has(p.id));
 }
 
 /** Which project ids have a dedicated (non-draft) page at /projects/<id>/. */
@@ -41,4 +43,21 @@ export async function getProjectPageIds(): Promise<Set<string>> {
     import.meta.env.PROD ? data.draft !== true : true,
   );
   return new Set(entries.map((e) => e.id));
+}
+
+/** Projects in display order (featured first) with their links resolved. */
+export async function getProjectsWithLinks(lang: Lang) {
+  const pageIds = await getProjectPageIds();
+  const projects = getPortfolio(lang).projects;
+  const ordered = [
+    ...projects.filter((p) => p.featured),
+    ...projects.filter((p) => !p.featured),
+  ];
+  return Promise.all(
+    ordered.map(async (p) => ({
+      ...p,
+      hasPage: pageIds.has(p.id),
+      posts: await getRelatedPosts(p.id),
+    })),
+  );
 }

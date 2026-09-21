@@ -1,12 +1,13 @@
 import rss from "@astrojs/rss";
 import type { APIContext } from "astro";
-import { portfolio } from "@/data/portfolio";
+import { getPortfolio } from "@/data/portfolio";
 import { getPublishedPosts, postPath } from "@/lib/blog";
 
 // Site feed at /index.xml (matches the old Hugo path referenced by <link
 // rel="alternate">).
 export async function GET(context: APIContext) {
   const posts = await getPublishedPosts();
+  const portfolio = getPortfolio("en");
   return rss({
     title: portfolio.meta.title,
     description: portfolio.meta.description,

@@ -1,38 +1,49 @@
 ---
-import { portfolio } from "@/data/portfolio";
+import { getPortfolio } from "@/data/portfolio";
 import Logo from "@/components/Logo.astro";
-const { about, skills } = portfolio;
+import { getLang } from "@/i18n";
+import { getUI } from "@/i18n/ui";
+import { rich } from "@/lib/rich";
 
-// neofetch-style rows built from the skills data + a couple of static facts.
+const lang = getLang(Astro.currentLocale);
+const t = getUI(lang);
+const { about, skills } = getPortfolio(lang);
+
+// neofetch-style rows: a few facts, then the skill groups.
 const rows: { k: string; v: string }[] = [
-  { k: "host", v: "UAM · CS + Mathematics" },
-  { k: "focus", v: "low-level systems, security, maths" },
-  ...skills.map((g) => ({ k: g.name.toLowerCase(), v: g.items.join(", ") })),
+  ...about.facts.map((f) => ({ k: f.key, v: f.value })),
+  ...skills.map((g) => ({ k: g.name, v: g.items.join(", ") })),
 ];
 const kw = Math.max(...rows.map((r) => r.k.length));
 ---
 <section id="about" class="section about">
   <div class="container about-grid">
     <div class="about-text" data-reveal>
-      <p class="eyebrow">about</p>
-      <h2 class="section-title">{about.heading}</h2>
-      {about.paragraphs.map((p) => <p class="para">{p}</p>)}
+      <p class="eyebrow">{t.about.eyebrow}</p>
+      <h2 class="section-title">{t.about.title}</h2>
+      <p class="lead" set:html={rich(about.intro)} />
+
+      <h3 class="hl-title">{t.about.highlights}</h3>
+      <ul class="highlights">
+        {about.highlights.map((h) => <li set:html={rich(h)} />)}
+      </ul>
+
       {
         about.now && (
           <p class="now">
             <span class="now-dot" aria-hidden="true" />
-            {about.now}
+            <span set:html={rich(about.now)} />
           </p>
         )
       }
     </div>
 
-    <aside class="fetch" data-reveal data-reveal-delay="120ms" aria-label="Skills and background">
+    <aside class="fetch" data-reveal data-reveal-delay="120ms" aria-label={t.about.fetch}>
       <div class="fetch-art" aria-hidden="true">
-        <Logo size={104} class="fetch-logo" />
+        <Logo size={104} class="fetch-logo" title="" />
       </div>
       <div class="fetch-info">
-        <p class="fetch-head">
+        <p class="fetch-head" aria-hidden="true">
           <span class="user">jesus</span><span class="at">@</span><span class="host">blazquez</span>
         </p>
         <p class="fetch-rule" aria-hidden="true">{"-".repeat(18)}</p>
@@ -60,35 +71,81 @@ const kw = Math.max(...rows.map((r) => r.k.length));
     grid-template-columns: 1fr;
     gap: 2.5rem;
   }
-  .about-text .para {
+  .lead {
     color: var(--fg-2);
     margin-top: 1rem;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
+    max-width: 40rem;
+  }
+
+  /* marker-pen highlights on the key phrases, so the section can be skimmed */
+  .about-text :global(strong) {
+    color: var(--fg);
+    font-weight: 600;
+    background: linear-gradient(
+      transparent 58%,
+      color-mix(in srgb, var(--accent) 30%, transparent) 58%
+    );
+    padding-inline: 0.08em;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  .hl-title {
+    margin-top: 1.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+  }
+  .highlights {
+    list-style: none;
+    padding: 0;
+    margin: 0.8rem 0 0;
+    display: grid;
+    gap: 0.85rem;
     max-width: 42rem;
   }
+  .highlights li {
+    position: relative;
+    padding-left: 1.4rem;
+    color: var(--fg-2);
+    font-size: 1.02rem;
+    line-height: 1.6;
+  }
+  .highlights li::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
   .now {
     display: flex;
     align-items: flex-start;
     gap: 0.6rem;
-    margin-top: 1.5rem;
+    margin-top: 1.75rem;
     padding: 0.9rem 1.1rem;
     border: 1px solid var(--border);
     border-left: 3px solid var(--ok);
     border-radius: var(--radius-sm);
     background: color-mix(in srgb, var(--ok) 7%, transparent);
     font-family: var(--font-mono);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: var(--fg);
+    max-width: 42rem;
   }
   .now-dot {
     flex: none;
     width: 9px;
     height: 9px;
-    margin-top: 0.35rem;
+    margin-top: 0.4rem;
     border-radius: 50%;
     background: var(--ok);
     box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent);
-    animation: pulse 2.4s ease-out infinite;
+    animation: pulse 2.4s ease-out 2;
   }
   @keyframes pulse {
     0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 55%, transparent); }
@@ -133,7 +190,6 @@ const kw = Math.max(...rows.map((r) => r.k.length));
     color: var(--accent);
     white-space: pre;
     flex: none;
-    text-transform: none;
   }
   .frow dd { color: var(--fg-2); margin: 0; }
   .fetch-palette { display: flex; gap: 4px; margin-top: 0.8rem; }

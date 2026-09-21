@@ -1,5 +1,7 @@
 import type { APIContext } from "astro";
-import { portfolio } from "@/data/portfolio";
+import { getPortfolio } from "@/data/portfolio";
+import { plain } from "@/lib/rich";
+import { isPublished } from "@/i18n";
 import { getPublishedPosts, postPath } from "@/lib/blog";
 
 // /llms.txt — a Markdown overview for LLMs / AI crawlers (the llms.txt
@@ -7,12 +9,14 @@ import { getPublishedPosts, postPath } from "@/lib/blog";
 export async function GET(context: APIContext) {
   const site = (context.site ?? new URL("https://www.jesusblazquez.eu")).origin;
   const posts = await getPublishedPosts();
-  const p = portfolio;
+  const p = getPortfolio("en");
   const L: string[] = [];
 
   L.push(`# ${p.meta.title}`, "");
   L.push(`> ${p.meta.description}`, "");
-  for (const par of p.about.paragraphs) L.push(par, "");
+  L.push(plain(p.about.intro), "");
+  for (const h of p.about.highlights) L.push(`- ${plain(h)}`);
+  L.push("");
 
   if (posts.length) {
     L.push("## Writing", "");
@@ -32,7 +36,9 @@ export async function GET(context: APIContext) {
   L.push("## Links", "");
   L.push(`- [Home](${site}/)`);
   L.push(`- [Blog](${site}/blogs/)`);
-  L.push(`- [CV (PDF)](${site}${p.hero.cta.url})`);
+  L.push(`- [Projects](${site}/projects/)`);
+  if (isPublished("es")) L.push(`- [Spanish version](${site}/es/)`);
+  L.push(`- [CV (PDF)](${site}${p.hero.cvUrl})`);
   if (p.contact.pgpKeyUrl) L.push(`- [PGP public key](${site}${p.contact.pgpKeyUrl})`);
   for (const s of p.socials) L.push(`- [${s.label}](${s.url})`);
   L.push(`- [RSS feed](${site}/index.xml)`);

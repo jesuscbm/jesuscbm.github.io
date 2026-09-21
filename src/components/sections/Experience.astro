@@ -1,51 +1,47 @@
 ---
-import { portfolio } from "@/data/portfolio";
-import Icon from "@/components/Icon.astro";
-const { experience } = portfolio;
+import { getPortfolio } from "@/data/portfolio";
+import { getLang } from "@/i18n";
+import { getUI } from "@/i18n/ui";
+
+const lang = getLang(Astro.currentLocale);
+const t = getUI(lang);
+const { experience } = getPortfolio(lang);
 ---
 <section id="experience" class="section">
   <div class="container">
-    <p class="eyebrow" data-reveal>experience</p>
-    <h2 class="section-title" data-reveal>Where I've worked</h2>
+    <p class="eyebrow" data-reveal>{t.experience.eyebrow}</p>
+    <h2 class="section-title" data-reveal>{t.experience.title}</h2>
 
     <ol class="timeline">
       {
         experience.map((exp, ei) =>
-          exp.jobs.map((job, ji) => (
+          exp.jobs.map((job) => (
             <li class="tl-item" data-reveal data-reveal-delay={`${ei * 80}ms`}>
               <span class="tl-marker" aria-hidden="true" />
-              <details class="tl-card" open={ei === 0 && ji === 0}>
-                <summary>
-                  <div class="tl-head">
-                    <div>
-                      <h3 class="tl-role">{job.role}</h3>
-                      <p class="tl-company">
-                        {exp.companyUrl ? (
-                          <a href={exp.companyUrl} target="_blank" rel="noopener">
-                            {exp.company}
-                          </a>
-                        ) : (
-                          exp.company
-                        )}
-                        {exp.location && <span class="tl-loc"> · {exp.location}</span>}
-                      </p>
-                    </div>
-                    <span class="tl-date">{job.date}</span>
+              <article class="tl-card">
+                <div class="tl-head">
+                  <div>
+                    <h3 class="tl-role">{job.role}</h3>
+                    <p class="tl-company">
+                      {exp.companyUrl ? (
+                        <a href={exp.companyUrl} target="_blank" rel="noopener">
+                          {exp.company}
+                        </a>
+                      ) : (
+                        exp.company
+                      )}
+                      {exp.location && <span class="tl-loc"> · {exp.location}</span>}
+                    </p>
                   </div>
-                  <p class="tl-summary">{job.summary}</p>
-                  {job.details && job.details.length > 0 && (
-                    <span class="tl-toggle" aria-hidden="true">
-                      <span class="tl-toggle-label">Details</span>
-                      <Icon name="chevron" size={16} class="tl-chevron" />
-                    </span>
-                  )}
-                </summary>
+                  <span class="tl-date">{job.date}</span>
+                </div>
+                <p class="tl-summary">{job.summary}</p>
                 {job.details && job.details.length > 0 && (
                   <ul class="tl-details">
                     {job.details.map((d) => <li>{d}</li>)}
                   </ul>
                 )}
-              </details>
+              </article>
             </li>
           )),
         )
@@ -87,20 +83,12 @@ const { experience } = portfolio;
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
   }
   .tl-card {
-    padding: 0;
+    padding: 1.25rem 1.35rem 1.35rem;
     border: 1px solid var(--border);
-    border-left: 2px solid var(--border-strong);
+    border-left: 2px solid var(--accent);
     border-radius: var(--radius-sm);
     background: color-mix(in srgb, var(--bg-2) 35%, transparent);
-    transition: border-color 0.25s ease, background 0.25s ease;
   }
-  .tl-card summary {
-    padding: 1.25rem 1.35rem;
-    list-style: none;
-  }
-  .tl-card summary::-webkit-details-marker { display: none; }
-  .tl-card:hover,
-  .tl-card[open] { border-left-color: var(--accent); }
   .tl-head {
     display: flex;
     flex-wrap: wrap;
@@ -118,36 +106,14 @@ const { experience } = portfolio;
     color: var(--fg-dim);
     white-space: nowrap;
   }
-  .tl-summary { color: var(--fg-2); margin-top: 0.75rem; }
-  .tl-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-top: 0.9rem;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--accent);
-  }
-  .tl-toggle :global(.tl-chevron) { transition: transform 0.25s ease; }
-  .tl-card[open] .tl-toggle :global(.tl-chevron) { transform: rotate(180deg); }
-  .tl-card[open] .tl-toggle-label::after { content: none; }
+  .tl-summary { color: var(--fg); margin-top: 0.75rem; }
   .tl-details {
-    padding: 0 1.35rem 1.35rem 2.6rem;
-    margin: 0;
+    padding: 0 0 0 1.25rem;
+    margin: 0.75rem 0 0;
     display: grid;
-    gap: 0.6rem;
+    gap: 0.5rem;
     color: var(--fg-2);
+    font-size: 0.95rem;
   }
-  .tl-details li { position: relative; }
   .tl-details li::marker { color: var(--accent); }
-  /* subtle open animation (respects reduced motion via html.js gate) */
-  @media (prefers-reduced-motion: no-preference) {
-    .tl-card[open] .tl-details {
-      animation: tl-open 0.35s ease;
-    }
-  }
-  @keyframes tl-open {
-    from { opacity: 0; transform: translateY(-6px); }
-    to { opacity: 1; transform: none; }
-  }
 </style>

@@ -1,0 +1,80 @@
+---
+// The blog index, rendered at /blogs/ (English) and /es/blogs/ (Spanish UI;
+// the posts themselves are English-only).
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostCard from "@/components/PostCard.astro";
+import { getPublishedPosts, getAllTags } from "@/lib/blog";
+import { DEFAULT_LANG, getLang } from "@/i18n";
+import { getUI } from "@/i18n/ui";
+
+const lang = getLang(Astro.currentLocale);
+const t = getUI(lang);
+const posts = await getPublishedPosts();
+// Tag pages are English-only, so the cloud is only shown on the English index.
+const tags = lang === DEFAULT_LANG ? await getAllTags() : [];
+---
+<BaseLayout title={`${t.blog.title} | Jesús Blázquez`} description={t.blog.lede}>
+  <section class="section">
+    <div class="container">
+      <p class="eyebrow">{t.blog.eyebrow}</p>
+      <h1 class="section-title">{t.blog.title}</h1>
+      <p class="lede">{t.blog.lede}</p>
+      {t.writing.englishOnly && <p class="note">{t.writing.englishOnly}</p>}
+
+      {
+        tags.length > 0 && (
+          <ul class="tag-cloud" aria-label={t.blog.tags}>
+            {tags.map((tag) => (
+              <li>
+                <a href={`/tags/${tag.slug}/`} class="tag">
+                  {tag.tag} <span class="count">{tag.count}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+
+      {
+        posts.length === 0 ? (
+          <p class="empty">{t.blog.empty}</p>
+        ) : (
+          <div class="post-grid">
+            {posts.map((post, i) => <PostCard post={post} index={i} />)}
+          </div>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .lede {
+    color: var(--fg-2);
+    font-size: 1.1rem;
+    max-width: 40rem;
+    margin-top: 0.75rem;
+  }
+  .note { color: var(--fg-dim); margin-top: 0.5rem; }
+  .tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 1.75rem 0 0;
+  }
+  .tag-cloud .tag:hover { color: var(--accent); border-color: var(--accent); }
+  .tag-cloud .count { color: var(--fg-dim); }
+  .post-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+  }
+  .empty {
+    margin-top: 2.5rem;
+    color: var(--fg-2);
+    font-family: var(--font-mono);
+  }
+</style>

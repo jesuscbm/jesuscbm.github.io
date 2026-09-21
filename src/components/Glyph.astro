@@ -19,14 +19,17 @@ const {
   stroke = 9,
 } = Astro.props;
 const inner = GLYPH_PATHS[name] ?? GLYPH_PATHS[MARK];
+// title="" marks the glyph as decorative (e.g. next to a visible name).
+const decorative = title === "";
 ---
 <svg
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 100 100"
   width={size}
   height={size}
-  role="img"
-  aria-label={title}
+  role={decorative ? undefined : "img"}
+  aria-label={decorative ? undefined : title}
+  aria-hidden={decorative ? "true" : undefined}
   class:list={["glyph", className, { animate }]}
 >
   <g

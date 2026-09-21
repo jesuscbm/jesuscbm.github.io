@@ -1,8 +1,18 @@
 ---
 // All <head> SEO. Reproduces the old Hugo setup: canonical, RSS alternate,
 // favicons, OpenGraph, Twitter cards, and JSON-LD (Person on home, Article on
-// posts).
-import { portfolio } from "@/data/portfolio";
+// posts). Pages that exist in both languages also get hreflang alternates.
+import { getPortfolio } from "@/data/portfolio";
+import {
+  LANG_META,
+  DEFAULT_LANG,
+  PUBLISHED_LANGS,
+  basePath,
+  getLang,
+  isPublished,
+  isTranslated,
+  localePath,
+} from "@/i18n";
 
 interface ArticleMeta {
   publishedTime?: string;
@@ -18,6 +28,9 @@ interface Props {
   article?: ArticleMeta;
 }
 
+const lang = getLang(Astro.currentLocale);
+const portfolio = getPortfolio(lang);
+
 const {
   title,
   description = portfolio.meta.description,
@@ -32,18 +45,30 @@ const canonical = new URL(Astro.url.pathname, site);
 const ogImage = new URL(image, site);
 const siteName = portfolio.meta.title;
 
-const isHome = Astro.url.pathname === "/";
+const base = basePath(Astro.url.pathname);
+const isHome = base === "/";
+const alternates =
+  isTranslated(Astro.url.pathname) && PUBLISHED_LANGS.length > 1
+    ? PUBLISHED_LANGS.map((l) => ({ lang: l, href: new URL(localePath(l, base), site).href }))
+    : [];
 
+const en = getPortfolio(DEFAULT_LANG);
 const personLd = {
   "@context": "https://schema.org",
   "@type": "Person",
   name: siteName,
   url: site.href,
+  description: en.meta.description,
   jobTitle: "Computer Science & Mathematics Student",
   affiliation: {
     "@type": "CollegeOrUniversity",
     name: "Universidad Autónoma de Madrid",
   },
+  homeLocation: {
+    "@type": "Place",
+    address: { "@type": "PostalAddress", addressCountry: "ES" },
+  },
+  knowsLanguage: ["es", "en"],
   knowsAbout: [
     "Systems Programming",
     "Security Research",
@@ -64,6 +89,7 @@ const articleLd = article
       "@type": "Article",
       headline: title,
       description,
+      inLanguage: "en",
       datePublished: article.publishedTime,
       dateModified: article.modifiedTime ?? article.publishedTime,
       author: { "@type": "Person", name: siteName, url: site.href },
@@ -73,13 +99,27 @@ const articleLd = article
 ---
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
 <title>{title}</title>
 <meta name="description" content={description} />
 <meta name="keywords" content={keywords.join(", ")} />
 <meta name="author" content={portfolio.meta.author} />
 <link rel="canonical" href={canonical.href} />
+{!isPublished(lang) && <meta name="robots" content="noindex" />}
+{
+  alternates.map((a) => (
+    <link rel="alternate" hreflang={a.lang} href={a.href} />
+  ))
+}
+{
+  alternates.length > 0 && (
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={new URL(localePath(DEFAULT_LANG, base), site).href}
+    />
+  )
+}
 
 <!-- icons -->
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -106,7 +146,12 @@ const articleLd = article
 <meta property="og:url" content={canonical.href} />
 <meta property="og:site_name" content={siteName} />
 <meta property="og:image" content={ogImage.href} />
-<meta property="og:locale" content="en_US" />
+<meta property="og:locale" content={LANG_META[lang].og} />
+{
+  alternates
+    .filter((a) => a.lang !== lang)
+    .map((a) => <meta property="og:locale:alternate" content={LANG_META[a.lang].og} />)
+}
 {
   article?.publishedTime && (
     <meta property="article:published_time" content={article.publishedTime} />

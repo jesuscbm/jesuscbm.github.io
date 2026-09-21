@@ -1,0 +1,60 @@
+---
+// The link row under a project: external links, related write-ups, and the
+// case-study page if one exists. Shared by the home cards and /projects/.
+import type { CollectionEntry } from "astro:content";
+import type { LocalizedProject } from "@/data/portfolio";
+import Icon from "@/components/Icon.astro";
+import { postPath } from "@/lib/blog";
+import { DEFAULT_LANG, getLang } from "@/i18n";
+import { getUI } from "@/i18n/ui";
+
+interface Props {
+  project: LocalizedProject & { hasPage: boolean; posts: CollectionEntry<"blog">[] };
+}
+const { project: p } = Astro.props;
+const lang = getLang(Astro.currentLocale);
+const t = getUI(lang);
+// Posts and case studies are English-only.
+const enAttrs = lang === DEFAULT_LANG ? {} : { hreflang: DEFAULT_LANG };
+const hasAny = p.links.length > 0 || p.posts.length > 0 || p.hasPage;
+---
+{
+  hasAny && (
+    <p class="plinks">
+      {p.links.map((l) => (
+        <a href={l.url} target="_blank" rel="noopener" class="plink">
+          {l.label} <Icon name="external" size={13} />
+        </a>
+      ))}
+      {p.posts.map((post) => (
+        <a href={postPath(post)} class="plink" title={post.data.title} {...enAttrs}>
+          {t.projects.writeup} <Icon name="arrow" size={13} />
+        </a>
+      ))}
+      {p.hasPage && (
+        <a href={`/projects/${p.id}/`} class="plink" {...enAttrs}>
+          {t.projects.caseStudy} <Icon name="arrow" size={13} />
+        </a>
+      )}
+    </p>
+  )
+}
+
+<style>
+  .plinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+  }
+  .plink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding-block: 0.2rem;
+    color: var(--fg);
+    border-bottom: 1px solid var(--border-strong);
+  }
+  .plink:hover { color: var(--accent); border-color: var(--accent); }
+</style>

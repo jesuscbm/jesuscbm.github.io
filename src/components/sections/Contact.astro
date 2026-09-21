@@ -1,14 +1,19 @@
 ---
-import { portfolio } from "@/data/portfolio";
+import { getPortfolio } from "@/data/portfolio";
 import Icon from "@/components/Icon.astro";
-const { contact } = portfolio;
+import { getLang } from "@/i18n";
+import { getUI } from "@/i18n/ui";
+
+const lang = getLang(Astro.currentLocale);
+const t = getUI(lang);
+const { contact } = getPortfolio(lang);
 ---
 <section id="contact" class="section contact">
   <div class="container">
     <div class="contact-grid">
       <div class="contact-main" data-reveal>
-        <p class="eyebrow">contact</p>
-        <h2 class="section-title">{contact.heading}</h2>
+        <p class="eyebrow">{t.contact.eyebrow}</p>
+        <h2 class="section-title">{t.contact.title}</h2>
         <p class="contact-intro">{contact.intro}</p>
 
         <a href={`mailto:${contact.email}`} class="btn btn-primary contact-cta">
@@ -35,12 +40,14 @@ const { contact } = portfolio;
                     id="pgp-copy"
                     class="copy-btn"
                     data-copy={contact.pgpFingerprint}
-                    aria-label="Copy PGP fingerprint"
+                    data-label-done={t.contact.copied}
+                    aria-label={t.contact.copyLabel}
                   >
-                    copy
+                    {t.contact.copy}
                   </button>
+                  <span id="pgp-status" class="sr-only" role="status"></span>
                   {contact.pgpKeyUrl && (
-                    <a href={contact.pgpKeyUrl} class="pgp-key">public key</a>
+                    <a href={contact.pgpKeyUrl} class="pgp-key">{t.contact.publicKey}</a>
                   )}
                 </dd>
               </div>
@@ -52,16 +59,15 @@ const { contact } = portfolio;
       {
         contact.faq && contact.faq.length > 0 && (
           <div class="contact-faq" data-reveal data-reveal-delay="120ms">
-            <p class="faq-label">Good to know</p>
-            {contact.faq.map((item, i) => (
-              <details class="faq-item" open={i === 0}>
-                <summary>
-                  {item.q}
-                  <Icon name="chevron" size={16} class="faq-chevron" />
-                </summary>
-                <p>{item.a}</p>
-              </details>
-            ))}
+            <h3 class="faq-label">{t.contact.faq}</h3>
+            <dl>
+              {contact.faq.map((item) => (
+                <div class="faq-item">
+                  <dt>{item.q}</dt>
+                  <dd>{item.a}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         )
       }
@@ -71,16 +77,20 @@ const { contact } = portfolio;
 
 <script>
   const btn = document.getElementById("pgp-copy") as HTMLButtonElement | null;
+  const status = document.getElementById("pgp-status");
   btn?.addEventListener("click", async () => {
     const text = btn.dataset.copy || "";
     try {
       await navigator.clipboard.writeText(text);
       const prev = btn.textContent;
-      btn.textContent = "copied ✓";
+      const done = btn.dataset.labelDone ?? "";
+      btn.textContent = `${done} ✓`;
       btn.setAttribute("data-done", "");
+      if (status) status.textContent = done;
       setTimeout(() => {
         btn.textContent = prev;
         btn.removeAttribute("data-done");
+        if (status) status.textContent = "";
       }, 1600);
     } catch {
       // clipboard unavailable, select the text as a fallback
@@ -139,12 +149,14 @@ const { contact } = portfolio;
   }
   .copy-btn {
     font-family: var(--font-mono);
-    font-size: 0.72rem;
-    padding: 0.2rem 0.55rem;
+    font-size: 0.75rem;
+    min-height: 1.75rem;
+    padding: 0.2rem 0.6rem;
     border-radius: 5px;
     border: 1px solid var(--border-strong);
     background: transparent;
     color: var(--fg-2);
+    cursor: pointer;
     transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease,
       transform 0.15s ease;
   }
@@ -156,37 +168,27 @@ const { contact } = portfolio;
   }
   .copy-btn:active { transform: translateY(0); }
   .copy-btn[data-done] { color: var(--ok); border-color: var(--ok); }
-  .pgp-key { font-size: 0.8rem; font-family: var(--font-mono); }
+  .pgp-key { font-size: 0.82rem; font-family: var(--font-mono); padding-block: 0.25rem; }
 
   .faq-label {
     font-family: var(--font-mono);
     font-size: 0.78rem;
-    letter-spacing: 0.08em;
+    font-weight: 500;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--fg-dim);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
   }
   .faq-item {
-    padding: 0;
-    margin-bottom: 0.5rem;
+    padding: 1rem 0;
     border-bottom: 1px solid var(--border);
   }
-  .faq-item summary {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.15rem;
-    list-style: none;
-    font-family: var(--font-display);
+  .faq-item dt {
     font-weight: 600;
     font-size: 0.98rem;
   }
-  .faq-item summary::-webkit-details-marker { display: none; }
-  .faq-item :global(.faq-chevron) { transition: transform 0.25s ease; flex: none; }
-  .faq-item[open] :global(.faq-chevron) { transform: rotate(180deg); }
-  .faq-item p {
-    padding: 0 1.15rem 1.15rem;
+  .faq-item dd {
+    margin: 0.35rem 0 0;
     color: var(--fg-2);
     font-size: 0.94rem;
   }

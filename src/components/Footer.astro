@@ -1,20 +1,26 @@
 ---
-import { portfolio } from "@/data/portfolio";
+import { getPortfolio } from "@/data/portfolio";
 import Icon from "@/components/Icon.astro";
 import Logo from "@/components/Logo.astro";
+import { getLang } from "@/i18n";
+import { getUI } from "@/i18n/ui";
+
+const lang = getLang(Astro.currentLocale);
+const t = getUI(lang);
+const portfolio = getPortfolio(lang);
 const year = new Date().getFullYear();
 ---
 <footer class="site-footer">
   <div class="container footer-inner">
     <div class="footer-brand">
-      <Logo size={30} class="footer-mark" />
+      <Logo size={30} class="footer-mark" title="" />
       <div>
         <p class="footer-name">Jesús Blázquez</p>
-        <p class="footer-tag">Systems · Security · Mathematics</p>
+        <p class="footer-tag">{t.footer.tagline}</p>
       </div>
     </div>
 
-    <nav class="footer-social" aria-label="Social links">
+    <nav class="footer-social" aria-label={t.footer.socials}>
       {
         portfolio.socials.map((s) => (
           <a href={s.url} aria-label={s.label} rel="me noopener" target={s.url.startsWith("http") ? "_blank" : undefined}>
@@ -22,14 +28,14 @@ const year = new Date().getFullYear();
           </a>
         ))
       }
-      <a href="/index.xml" aria-label="RSS feed">
+      <a href="/index.xml" aria-label={t.footer.rss}>
         <Icon name="rss" size={20} />
       </a>
     </nav>
   </div>
   <div class="container footer-legal">
     <span>© {year} Jesús Blázquez</span>
-    <span class="mono">built static · deployed on GitHub Pages</span>
+    <span class="mono">{t.footer.built}</span>
   </div>
 </footer>
 
@@ -54,7 +60,6 @@ const year = new Date().getFullYear();
   }
   .footer-brand :global(.footer-mark) { color: var(--accent); }
   .footer-name {
-    font-family: var(--font-display);
     font-weight: 600;
   }
   .footer-tag {

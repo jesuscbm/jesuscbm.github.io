@@ -12,14 +12,20 @@ Live at **[www.jesusblazquez.eu](https://www.jesusblazquez.eu)**.
 - **Content Collections** for the blog and (optional) project pages, with
   type-safe front matter and bidirectional relations via `reference()`.
 - **Shiki** for build-time syntax highlighting (theme `tokyo-night`).
-- **Self-hosted variable fonts** (`@fontsource-variable/*`) — no external font
-  requests.
+- **Two self-hosted variable fonts** (`@fontsource-variable/*`): Inter for
+  prose and headings, JetBrains Mono for code and terminal-style labels. No
+  external font requests.
+- **English + Spanish** via Astro's i18n routing. English is at the root (so
+  every existing URL is unchanged); Spanish is under `/es/` (currently
+  unpublished, see below).
 - **GitHub Pages** via GitHub Actions (`.github/workflows/deploy.yml`), custom
   domain through `public/CNAME`.
 
 Motion is deliberately lean: a Canvas 2D network field in the hero, CSS
 stroke-draw logos, and IntersectionObserver reveal-on-scroll. Everything
-respects `prefers-reduced-motion` and degrades gracefully with JS disabled.
+respects `prefers-reduced-motion`, the hero has a pause button (WCAG 2.2.2),
+and the site degrades gracefully with JS disabled. The cursor is never
+changed and no text animates before it can be read.
 
 ## Local development
 
@@ -37,15 +43,19 @@ npx astro check   # type-check .astro / .ts
 
 ```
 src/
-  data/portfolio.ts        # ← THE single file for all portfolio content
+  data/portfolio.ts        # ← THE single file for all portfolio content (EN + ES)
   data/site.ts             # site switches (which logo variant is live)
+  i18n/index.ts            # languages, localized paths, localize()
+  i18n/ui.ts               # interface strings (nav, headings, buttons) EN + ES
   content/
     blog/<slug>/index.md    # blog posts (URLs: /blogs/<slug>/)
     projects/<id>.md        # OPTIONAL dedicated project pages (/projects/<id>/)
   content.config.ts         # collection schemas (blog + projects)
   components/               # UI + section components + logo concepts
   layouts/BaseLayout.astro  # shell: head/SEO, nav, footer, theme, motion
-  pages/                    # routes (home, blog, tags, feeds, sitemap, 404)
+  components/pages/         # page bodies shared by the EN and ES routes
+  pages/                    # routes (home, projects, blog, tags, feeds, sitemap,
+                            # 404); pages/es/ holds the Spanish routes
   lib/                      # blog/tag helpers + related-content resolver
 public/                     # static passthrough: CNAME, robots.txt, CV, PGP,
                             # og.jpg, favicons, project images
@@ -58,22 +68,33 @@ public/                     # static passthrough: CNAME, robots.txt, CV, PGP,
 Everything on the home page lives in **`src/data/portfolio.ts`**. It is a typed
 module, so your editor flags mistakes.
 
-- **Experience / job** — add to `experience[].jobs`. `summary` shows collapsed;
-  the optional `details: string[]` are revealed in the expandable.
-- **Education** — add to `education[]`; `focus: string[]` becomes the expandable.
-- **Achievement** — add to `achievements[]`.
+Every text field takes either a plain string (used for both languages: names,
+`"C++"`, URLs) or `{ en: "…", es: "…" }`. TypeScript rejects an object that is
+missing a language. In prose fields, `**text**` renders as a highlight and
+`` `text` `` as code.
+
+- **About** — `about.intro` (one or two sentences) and `about.highlights`
+  (short, scannable facts; wrap the key phrase of each in `**…**`).
+- **Experience / job** — add to `experience[].jobs`; `details` are bullets.
+- **Education** — add to `education[]`; `courses` is shown as a compact list.
+  `year` (the year it ends or ended) places it on the Studies timeline.
+- **Achievement** — add to `achievements[]`. It appears on the same timeline
+  as the studies, at its `year`, marked as an award.
 - **Skill** — add to the relevant `skills[]` group (or add a new group).
-- **Project card** — push to `projects[]`:
+- **Project** — push to `projects[]`. Every project is listed on
+  `/projects/`; `featured: true` also puts it on the home page (keep that to
+  about three):
 
   ```ts
   {
     id: "my-project",              // stable slug (used for links + page routing)
-    title: "My Project",
-    blurb: "One line for the card face.",
-    longDescription: "Shown when the card is expanded.", // optional
-    badges: ["C", "Networking"],
+    title: { en: "My Project", es: "Mi proyecto" },
+    blurb: { en: "One or two lines.", es: "Una o dos líneas." },
+    longDescription: { en: "Extra detail for /projects/.", es: "…" }, // optional
+    status: { en: "merged upstream", es: "…" },  // optional pill on the card
+    badges: ["C", { en: "Networking", es: "Redes" }],
     image: "/img/projects/my-project.png",  // optional; put file in public/img/projects/
-    links: [{ label: "Source", url: "https://github.com/…" }],
+    links: [{ label: { en: "Source", es: "Código" }, url: "https://github.com/…" }],
     relatedPosts: ["some-post-slug"],        // optional; see linking below
     featured: false,
   }
@@ -128,10 +149,30 @@ relatedPosts: ["some-post-slug"]
 Full write-up in Markdown…
 ```
 
-The matching home card automatically gains a **“Case study →”** link. The card
+The matching project automatically gains a **“Case study →”** link. The card
 itself is still authored in `portfolio.ts` — this file only *enriches* it with a
 page. (Tradeoff: quick entries stay in one file; only projects that deserve a
 long page get a second file, keyed by the same `id`.)
+
+## How to: translate / add a language
+
+Spanish is built but **not published** yet: `PUBLISHED_LANGS` in
+`src/i18n/index.ts` is `["en"]`, so the language switch is hidden, `/es/` pages
+are `noindex`, and they are left out of the sitemap and hreflang. They still
+build, so you can preview them at `/es/`. Add `"es"` to publish.
+
+- Portfolio content: `{ en, es }` fields in `src/data/portfolio.ts` (above).
+- Interface strings: `src/i18n/ui.ts`. `es` is typed against `en`, so a missing
+  key is a type error.
+- Pages that exist in both languages are listed in `TRANSLATED` in
+  `src/i18n/index.ts` (`/`, `/projects/`, `/blogs/`); each has a thin route in
+  `src/pages/` and `src/pages/es/` rendering the same `components/pages/*`
+  body. Those pages get `hreflang` alternates automatically.
+- Blog posts, tags and case studies are English-only. On Spanish pages they
+  are marked `hreflang="en"`, and the language switcher on an English-only page
+  goes to the nearest Spanish section.
+- Adding a third language: add it to `LANGS` in `src/i18n/index.ts` and to
+  `i18n.locales` in `astro.config.mjs`, then follow the type errors.
 
 ## How to: link a blog post ↔ a project
 

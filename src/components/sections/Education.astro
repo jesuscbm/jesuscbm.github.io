@@ -1,159 +1,160 @@
 ---
-import { portfolio } from "@/data/portfolio";
-import Icon from "@/components/Icon.astro";
-const { education, achievements } = portfolio;
----
-<section id="education" class="section edu-section">
-  <div class="container edu-grid">
-    <div class="edu-col">
-      <p class="eyebrow" data-reveal>education</p>
-      <h2 class="section-title" data-reveal>Studies</h2>
-      <div class="edu-list">
-        {
-          education.map((item, i) => (
-            <details class="edu-item" data-reveal open={i === 0}>
-              <summary>
-                <span class="edu-bar" aria-hidden="true" />
-                <span class="edu-main">
-                  <span class="edu-top">
-                    <span class="edu-title">{item.title}</span>
-                    <span class="edu-date">{item.date}</span>
-                  </span>
-                  <span class="edu-school">
-                    {item.schoolUrl ? (
-                      <a href={item.schoolUrl} target="_blank" rel="noopener">{item.school}</a>
-                    ) : (
-                      item.school
-                    )}
-                  </span>
-                  {item.summary && <span class="edu-summary">{item.summary}</span>}
-                  {item.focus && item.focus.length > 0 && (
-                    <span class="edu-toggle" aria-hidden="true">
-                      focus areas <Icon name="chevron" size={14} class="edu-chevron" />
-                    </span>
-                  )}
-                </span>
-              </summary>
-              {item.focus && item.focus.length > 0 && (
-                <ul class="edu-focus">
-                  {item.focus.map((f) => <li>{f}</li>)}
-                </ul>
-              )}
-            </details>
-          ))
-        }
-      </div>
-    </div>
+// Studies and awards on one timeline, newest first (by each entry's `year`),
+// so the awards sit next to the studies they happened during.
+import { getPortfolio } from "@/data/portfolio";
+import { getLang } from "@/i18n";
+import { getUI } from "@/i18n/ui";
 
-    <div class="edu-col">
-      <p class="eyebrow" data-reveal>recognition</p>
-      <h2 class="section-title" data-reveal>Achievements</h2>
-      <dl class="ach" data-reveal>
-        {
-          achievements.map((a) => (
-            <div class="ach-row">
-              <dt>
-                <span class="ach-mark" aria-hidden="true">◆</span>
-                <span class="ach-title">{a.title}</span>
-                {a.year && <span class="ach-year">{a.year}</span>}
-              </dt>
-              <dd>{a.content}</dd>
-            </div>
-          ))
-        }
-      </dl>
-    </div>
+const lang = getLang(Astro.currentLocale);
+const t = getUI(lang);
+const { education, achievements } = getPortfolio(lang);
+
+// Stable sort: on the same year a study comes before an award.
+const entries = [
+  ...education.map((item) => ({ kind: "study" as const, year: item.year, item })),
+  ...achievements.map((item) => ({ kind: "award" as const, year: item.year, item })),
+].sort((a, b) => b.year - a.year);
+---
+<section id="education" class="section">
+  <div class="container">
+    <p class="eyebrow" data-reveal>{t.education.eyebrow}</p>
+    <h2 class="section-title" data-reveal>{t.education.title}</h2>
+
+    <ol class="st">
+      {
+        entries.map((e) =>
+          e.kind === "study" ? (
+            <li class="st-row study" data-reveal>
+              <span class="st-when">{e.item.date}</span>
+              <span class="st-node" aria-hidden="true" />
+              <div class="st-body">
+                <h3 class="st-title">{e.item.title}</h3>
+                <p class="st-school">
+                  {e.item.schoolUrl ? (
+                    <a href={e.item.schoolUrl} target="_blank" rel="noopener">{e.item.school}</a>
+                  ) : (
+                    e.item.school
+                  )}
+                </p>
+                {e.item.summary && <p class="st-text">{e.item.summary}</p>}
+                {e.item.courses && e.item.courses.length > 0 && (
+                  <p class="st-courses">
+                    <span class="st-label">{t.education.courses}:</span>{" "}
+                    {e.item.courses.join(" · ")}
+                  </p>
+                )}
+              </div>
+            </li>
+          ) : (
+            <li class="st-row award" data-reveal>
+              <span class="st-when">{e.item.year}</span>
+              <span class="st-node" aria-hidden="true" />
+              <div class="st-body">
+                <h3 class="st-title">
+                  {e.item.title} <span class="st-tag">{t.education.award}</span>
+                </h3>
+                <p class="st-text">{e.item.content}</p>
+              </div>
+            </li>
+          ),
+        )
+      }
+    </ol>
   </div>
 </section>
 
 <style>
-  .edu-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 3rem;
-  }
-  .edu-list { margin-top: 2rem; display: grid; gap: 0.5rem; }
-  .edu-item { border-radius: var(--radius-sm); }
-  .edu-item summary {
-    display: flex;
-    gap: 0.9rem;
-    padding: 0.9rem 0.6rem;
+  .st {
+    --when: 9.5rem;
+    --rail: 1.75rem;
     list-style: none;
-    border-radius: var(--radius-sm);
-    transition: background 0.2s ease;
+    padding: 0;
+    margin: 2.25rem 0 0;
+    position: relative;
+    max-width: 58rem;
   }
-  .edu-item summary:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
-  .edu-item summary::-webkit-details-marker { display: none; }
-  .edu-bar {
-    flex: none;
-    width: 3px;
-    border-radius: 2px;
-    background: var(--border-strong);
-    transition: background 0.2s ease;
-  }
-  .edu-item[open] .edu-bar,
-  .edu-item summary:hover .edu-bar { background: var(--accent); }
-  .edu-main { min-width: 0; flex: 1; }
-  .edu-top {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.75rem;
-    align-items: baseline;
-    flex-wrap: wrap;
-  }
-  .edu-title { font-family: var(--font-display); font-weight: 600; font-size: 1.06rem; }
-  .edu-date { font-family: var(--font-mono); font-size: 0.76rem; color: var(--fg-dim); white-space: nowrap; }
-  .edu-school { display: block; color: var(--accent-2); font-size: 0.9rem; margin-top: 0.2rem; }
-  .edu-summary { display: block; color: var(--fg-2); font-size: 0.9rem; margin-top: 0.5rem; }
-  .edu-toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    margin-top: 0.7rem;
-    font-family: var(--font-mono);
-    font-size: 0.76rem;
-    color: var(--accent);
-  }
-  .edu-toggle :global(.edu-chevron) { transition: transform 0.25s ease; }
-  .edu-item[open] .edu-toggle :global(.edu-chevron) { transform: rotate(180deg); }
-  .edu-focus {
-    margin: 0.25rem 0 0.5rem;
-    padding: 0 0.6rem 0.4rem 2.1rem;
-    display: grid;
-    gap: 0.4rem;
-    color: var(--fg-2);
-    font-size: 0.9rem;
-    list-style: none;
-  }
-  .edu-focus li { position: relative; padding-left: 1.1rem; }
-  .edu-focus li::before {
-    content: "▹";
+  /* the rail runs through the middle of the node column */
+  .st::before {
+    content: "";
     position: absolute;
-    left: 0;
-    color: var(--accent);
+    top: 0.6rem;
+    bottom: 0.6rem;
+    left: calc(var(--when) + var(--rail) / 2 - 1px);
+    width: 2px;
+    background: linear-gradient(var(--border-strong) 75%, transparent);
   }
-  @media (prefers-reduced-motion: no-preference) {
-    .edu-item[open] .edu-focus { animation: edu-open 0.3s ease; }
+  .st-row {
+    display: grid;
+    grid-template-columns: var(--when) var(--rail) 1fr;
+    column-gap: 0.9rem;
+    padding-bottom: 1.6rem;
   }
-  @keyframes edu-open {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: none; }
+  .st-row:last-child { padding-bottom: 0; }
+  .st-when {
+    justify-self: end;
+    text-align: right;
+    padding-top: 0.15rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--fg-dim);
+  }
+  .st-node {
+    position: relative;
+    justify-self: center;
+    margin-top: 0.3rem;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+  }
+  .study:first-child .st-node {
+    background: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+  .award .st-node {
+    border-radius: 2px;
+    transform: rotate(45deg) scale(0.85);
+    border-color: var(--warn);
+    background: color-mix(in srgb, var(--warn) 25%, var(--bg));
+  }
+  .st-body { min-width: 0; max-width: 44rem; }
+  .st-title { font-size: 1.06rem; line-height: 1.35; }
+  .st-school { color: var(--accent-2); font-size: 0.92rem; margin-top: 0.15rem; }
+  .st-school a { color: inherit; }
+  .st-school a:hover { color: var(--accent-3); }
+  .st-text { color: var(--fg-2); font-size: 0.93rem; margin-top: 0.35rem; }
+  .st-courses { color: var(--fg-2); font-size: 0.86rem; margin-top: 0.35rem; }
+  .st-label { font-family: var(--font-mono); font-size: 0.78rem; color: var(--fg-dim); }
+
+  /* awards read as lighter-weight entries */
+  .award .st-title { font-size: 0.98rem; }
+  .st-tag {
+    display: inline-block;
+    vertical-align: 0.1em;
+    margin-left: 0.35rem;
+    padding: 0 0.45rem;
+    border: 1px solid color-mix(in srgb, var(--warn) 50%, transparent);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    color: var(--warn);
   }
 
-  .ach { margin-top: 2rem; display: grid; gap: 1.5rem; }
-  .ach-row { border-left: 1px solid var(--border); padding-left: 1.1rem; }
-  .ach-row dt {
-    display: flex;
-    align-items: baseline;
-    gap: 0.55rem;
-    flex-wrap: wrap;
-  }
-  .ach-mark { color: var(--warn); font-size: 0.8rem; }
-  .ach-title { font-family: var(--font-display); font-weight: 600; font-size: 1.02rem; }
-  .ach-year { font-family: var(--font-mono); font-size: 0.76rem; color: var(--fg-dim); }
-  .ach-row dd { margin: 0.4rem 0 0; color: var(--fg-2); font-size: 0.92rem; }
-
-  @media (min-width: 900px) {
-    .edu-grid { grid-template-columns: 1fr 1fr; }
+  /* narrow screens: date moves above the entry, rail on the left */
+  @media (max-width: 640px) {
+    .st { --when: 0px; }
+    .st::before { left: calc(var(--rail) / 2 - 1px); }
+    .st-row {
+      grid-template-columns: var(--rail) 1fr;
+      grid-template-areas: "node when" ". body";
+      column-gap: 0.75rem;
+    }
+    .st-node { grid-area: node; }
+    .st-when { grid-area: when; justify-self: start; text-align: left; padding-top: 0.1rem; }
+    .st-body { grid-area: body; }
   }
 </style>

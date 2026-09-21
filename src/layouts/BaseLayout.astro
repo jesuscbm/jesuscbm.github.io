@@ -1,5 +1,4 @@
 ---
-import "@fontsource-variable/space-grotesk";
 import "@fontsource-variable/inter";
 import "@fontsource-variable/jetbrains-mono";
 import "@/styles/global.css";
@@ -7,6 +6,8 @@ import "@/styles/global.css";
 import BaseHead from "@/components/BaseHead.astro";
 import Nav from "@/components/Nav.astro";
 import Footer from "@/components/Footer.astro";
+import { getLang } from "@/i18n";
+import { getUI } from "@/i18n/ui";
 
 interface Props {
   title: string;
@@ -21,26 +22,33 @@ interface Props {
   };
 }
 const props = Astro.props;
+const lang = getLang(Astro.currentLocale);
+const t = getUI(lang);
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <BaseHead {...props} />
     <script is:inline>
-      // Pre-paint: apply saved theme + mark JS-enabled before first paint so
-      // there is no flash and progressive enhancements can key off `.js`.
+      // Pre-paint: apply saved theme + motion preference and mark JS-enabled
+      // before first paint so there is no flash and progressive enhancements
+      // can key off `.js`.
       (function () {
+        var root = document.documentElement;
         try {
           var t = localStorage.getItem("pref-theme");
-          if (t === "light") document.documentElement.setAttribute("data-theme", "light");
-          else if (t === "dark") document.documentElement.setAttribute("data-theme", "dark");
+          if (t === "light") root.setAttribute("data-theme", "light");
+          else if (t === "dark") root.setAttribute("data-theme", "dark");
+          if (localStorage.getItem("pref-motion") === "paused")
+            root.setAttribute("data-motion", "paused");
         } catch (e) {}
-        document.documentElement.classList.add("js");
+        root.classList.add("js");
       })();
     </script>
   </head>
   <body>
-    <a href="#main" class="skip-link">Skip to content</a>
+    <a href="#main" class="skip-link">{t.skip}</a>
+    <div class="grid-glow" aria-hidden="true"></div>
     <Nav />
     <main id="main">
       <slot />
@@ -51,10 +59,17 @@ const props = Astro.props;
       // ---- theme toggle ----
       const root = document.documentElement;
       const toggle = document.getElementById("theme-toggle");
+      const syncPressed = () =>
+        toggle?.setAttribute(
+          "aria-pressed",
+          String(root.getAttribute("data-theme") !== "light"),
+        );
+      syncPressed();
       toggle?.addEventListener("click", () => {
         const isLight = root.getAttribute("data-theme") === "light";
         const next = isLight ? "dark" : "light";
         root.setAttribute("data-theme", next);
+        syncPressed();
         try {
           localStorage.setItem("pref-theme", next);
         } catch (e) {}
@@ -63,18 +78,27 @@ const props = Astro.props;
       // ---- mobile menu ----
       const menuBtn = document.getElementById("menu-toggle");
       const menu = document.getElementById("mobile-menu");
-      menuBtn?.addEventListener("click", () => {
-        const open = menuBtn.getAttribute("aria-expanded") === "true";
-        menuBtn.setAttribute("aria-expanded", String(!open));
-        menuBtn.setAttribute("aria-label", open ? "Open menu" : "Close menu");
-        if (menu) menu.hidden = open;
-      });
-      menu?.querySelectorAll("a").forEach((a) =>
-        a.addEventListener("click", () => {
-          menuBtn?.setAttribute("aria-expanded", "false");
-          if (menu) menu.hidden = true;
-        }),
+      const setMenu = (open: boolean) => {
+        if (!menuBtn) return;
+        menuBtn.setAttribute("aria-expanded", String(open));
+        menuBtn.setAttribute(
+          "aria-label",
+          (open ? menuBtn.dataset.labelClose : menuBtn.dataset.labelOpen) ?? "",
+        );
+        if (menu) menu.hidden = !open;
+      };
+      menuBtn?.addEventListener("click", () =>
+        setMenu(menuBtn.getAttribute("aria-expanded") !== "true"),
       );
+      menu?.querySelectorAll("a").forEach((a) =>
+        a.addEventListener("click", () => setMenu(false)),
+      );
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && menuBtn?.getAttribute("aria-expanded") === "true") {
+          setMenu(false);
+          menuBtn.focus();
+        }
+      });
 
       // ---- header: shadow on scroll + hide on scroll-down ----
       const header = document.querySelector("[data-header]");
@@ -114,54 +138,53 @@ const props = Astro.props;
         revealables.forEach((el) => io.observe(el));
       }
 
-      // ---- decode + glitch for section headings ----
-      const GLYPHS = "!<>-_\\/[]{}=+*^?#01xØ§";
-      const titles = document.querySelectorAll<HTMLElement>(".section-title");
-      titles.forEach((el) => {
-        const final = el.textContent ?? "";
-        el.setAttribute("data-text", final);
-        el.classList.add("glitch");
-        if (prefersReduced || !("IntersectionObserver" in window)) {
-          el.classList.add("decoded");
-          return;
-        }
-        el.setAttribute("data-decode", "");
-      });
-      if (!prefersReduced && "IntersectionObserver" in window) {
-        const decode = (el: HTMLElement) => {
-          const final = el.getAttribute("data-text") ?? "";
-          const started = performance.now();
-          const step = () => {
-            const t = Math.min(1, (performance.now() - started) / 620);
-            const revealed = Math.floor(t * final.length);
-            let out = "";
-            for (let i = 0; i < final.length; i++) {
-              const ch = final[i];
-              if (i < revealed || ch === " ") out += ch;
-              else out += GLYPHS[(Math.random() * GLYPHS.length) | 0];
-            }
-            el.textContent = out;
-            if (t < 1) requestAnimationFrame(step);
-            else {
-              el.textContent = final;
-              el.classList.add("decoded");
-            }
-          };
-          requestAnimationFrame(step);
+      // ---- grid glow: the background grid brightens around the pointer ----
+      // Mouse/trackpad only, off under reduced motion, and off over the hero
+      // (it has its own spotlight). The cursor itself is never changed.
+      const glow = document.querySelector<HTMLElement>(".grid-glow");
+      if (glow && !prefersReduced && window.matchMedia("(pointer: fine)").matches) {
+        let x = 0;
+        let y = 0;
+        let inside = false;
+        let queued = false;
+        const paint = () => {
+          queued = false;
+          // re-checked every frame so scrolling into the hero also hides it
+          const overHero = document.elementFromPoint(x, y)?.closest(".hero");
+          glow.classList.toggle("on", inside && !overHero);
+          glow.style.setProperty("--gx", `${x}px`);
+          glow.style.setProperty("--gy", `${y}px`);
+          // keep the glow's grid aligned with the page's, which scrolls
+          glow.style.setProperty("--sy", `${-window.scrollY}px`);
         };
-        const dio = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((e) => {
-              if (e.isIntersecting) {
-                decode(e.target as HTMLElement);
-                dio.unobserve(e.target);
-              }
-            });
+        const queue = () => {
+          if (!queued) {
+            queued = true;
+            requestAnimationFrame(paint);
+          }
+        };
+        document.addEventListener(
+          "pointermove",
+          (e) => {
+            x = e.clientX;
+            y = e.clientY;
+            inside = e.pointerType === "mouse" || e.pointerType === "pen";
+            queue();
           },
-          { threshold: 0.5 },
+          { passive: true },
         );
-        titles.forEach((el) => dio.observe(el));
+        window.addEventListener("scroll", queue, { passive: true });
+        document.documentElement.addEventListener("pointerleave", () => {
+          inside = false;
+          glow.classList.remove("on");
+        });
       }
+
+      // ---- glitch-on-hover for section headings (CSS does the rest) ----
+      document.querySelectorAll<HTMLElement>(".section-title").forEach((el) => {
+        el.setAttribute("data-text", el.textContent ?? "");
+        el.classList.add("glitch");
+      });
     </script>
   </body>
 </html>

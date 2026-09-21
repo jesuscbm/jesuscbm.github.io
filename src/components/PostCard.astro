@@ -2,33 +2,38 @@
 import type { CollectionEntry } from "astro:content";
 import { postPath } from "@/lib/blog";
 import Icon from "@/components/Icon.astro";
+import { DEFAULT_LANG, getLang } from "@/i18n";
+import { dateFormat, getUI } from "@/i18n/ui";
 
 interface Props {
   post: CollectionEntry<"blog">;
   index?: number;
+  /** Heading level for the title; 3 when the list sits under an h2. */
+  level?: 2 | 3;
 }
-const { post, index = 0 } = Astro.props;
-const dateFmt = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-});
+const { post, index = 0, level = 2 } = Astro.props;
+const Heading = `h${level}` as "h2" | "h3";
+const lang = getLang(Astro.currentLocale);
+const t = getUI(lang);
+const dateFmt = dateFormat(lang);
+// Posts are English-only; mark them on other-language pages.
+const postLang = lang === DEFAULT_LANG ? undefined : DEFAULT_LANG;
 ---
 <article class="post-card card" data-reveal data-reveal-delay={`${(index % 3) * 90}ms`}>
-  <a href={postPath(post)} class="card-link" aria-label={post.data.title}></a>
+  <a href={postPath(post)} class="card-link" aria-label={post.data.title} hreflang={postLang} lang={postLang}></a>
   <div class="pc-top">
     <time datetime={post.data.pubDate.toISOString()}>
       {dateFmt.format(post.data.pubDate)}
     </time>
-    {post.data.draft && <span class="draft">draft</span>}
+    {post.data.draft && <span class="draft">{t.writing.draft}</span>}
   </div>
-  <h3 class="pc-title">{post.data.title}</h3>
-  {post.data.description && <p class="pc-desc">{post.data.description}</p>}
+  <Heading class="pc-title" lang={postLang}>{post.data.title}</Heading>
+  {post.data.description && <p class="pc-desc" lang={postLang}>{post.data.description}</p>}
   <div class="pc-foot">
     <ul class="pc-tags">
       {post.data.tags.slice(0, 3).map((t) => <li class="tag">{t}</li>)}
     </ul>
-    <span class="pc-read">read <Icon name="arrow" size={15} /></span>
+    <span class="pc-read" aria-hidden="true">{t.blog.read} <Icon name="arrow" size={15} /></span>
   </div>
 </article>
 

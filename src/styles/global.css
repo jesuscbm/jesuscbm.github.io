@@ -12,7 +12,7 @@
   --border-strong: rgba(122, 162, 247, 0.32);
   --fg: #c0caf5;
   --fg-2: #a9b1d6;
-  --fg-dim: #7982a9;
+  --fg-dim: #8890b2; /* >= 4.5:1 on --bg-2 */
   --accent: #bb9af7; /* magenta/purple */
   --accent-2: #7aa2f7; /* blue */
   --accent-3: #7dcfff; /* cyan */
@@ -22,9 +22,11 @@
   --danger: #f7768e;
 
   --grid-line: rgba(122, 162, 247, 0.06);
+  --grid-glow: rgba(125, 207, 255, 0.4);
   --shadow: 0 10px 40px -12px rgba(0, 0, 0, 0.6);
 
-  --font-display: "Space Grotesk Variable", system-ui, sans-serif;
+  /* Two families: Inter for all prose + headings, JetBrains Mono for code
+     and the terminal-flavoured labels. */
   --font-body: "Inter Variable", system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
 
@@ -45,16 +47,17 @@
   --border-strong: rgba(90, 82, 247, 0.3);
   --fg: #2f3550;
   --fg-2: #4c566a;
-  --fg-dim: #6b7394;
-  --accent: #5a52f7;
-  --accent-2: #2e7de9;
-  --accent-3: #0f7490;
+  --fg-dim: #5f6684; /* light text tokens all >= 4.5:1 on --bg-2 */
+  --accent: #564fed;
+  --accent-2: #2565bd;
+  --accent-3: #0e6f8a;
   --accent-glow: rgba(90, 82, 247, 0.22);
-  --ok: #587539;
-  --warn: #b15c00;
+  --ok: #547037;
+  --warn: #9f5300;
   --danger: #c53b53;
 
   --grid-line: rgba(90, 82, 247, 0.07);
+  --grid-glow: rgba(86, 79, 237, 0.35);
   --shadow: 0 10px 40px -14px rgba(48, 53, 80, 0.28);
 
   color-scheme: light;
@@ -100,10 +103,9 @@ h1,
 h2,
 h3,
 h4 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
   color: var(--fg);
 }
 a {
@@ -146,6 +148,9 @@ pre {
 }
 .skip-link:focus {
   top: 0.75rem;
+}
+:root[data-theme="light"] .skip-link {
+  color: #fff;
 }
 .sr-only {
   position: absolute;
@@ -203,7 +208,6 @@ pre {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.95rem;
   padding: 0.7rem 1.25rem;
@@ -221,6 +225,10 @@ pre {
   color: #14151f;
   transform: translateY(-2px);
   box-shadow: 0 8px 24px -6px var(--accent-glow);
+}
+:root[data-theme="light"] .btn-primary,
+:root[data-theme="light"] .btn-primary:hover {
+  color: #fff;
 }
 .btn-ghost {
   background: transparent;
@@ -289,37 +297,37 @@ html.js [data-reveal].is-visible {
 }
 
 /* ==========================================================================
-   Hacker layer: custom SVG cursor, scanlines, glitch + decode text.
-   All progressive and pointer/motion aware.
+   Hacker layer: scanlines + glitch-on-hover. Decorative only; nothing here
+   changes the cursor or delays reading.
    ========================================================================== */
 
-/* Custom crosshair cursor (pure SVG, no JS). Only on fine pointers so touch
-   and reading areas are unaffected. */
-@media (pointer: fine) {
-  body {
-    cursor: url("/cursor.svg") 14 14, auto;
-  }
-  a,
-  button,
-  summary,
-  label,
-  [role="button"],
-  .btn,
-  .tag {
-    cursor: url("/cursor-active.svg") 15 15, pointer;
-  }
-  /* reading + input areas keep a normal cursor */
-  .prose,
-  .prose *,
-  input,
-  textarea,
-  [contenteditable],
-  code {
-    cursor: auto;
-  }
-  .prose a {
-    cursor: url("/cursor-active.svg") 15 15, pointer;
-  }
+/* Grid glow: a copy of the body grid, brighter, masked to a soft circle
+   around the pointer (position set by BaseLayout's script). */
+.grid-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid-glow) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-glow) 1px, transparent 1px);
+  background-size: 46px 46px;
+  background-position: 0 var(--sy, 0);
+  -webkit-mask-image: radial-gradient(
+    200px circle at var(--gx, -999px) var(--gy, -999px),
+    #000,
+    transparent 75%
+  );
+  mask-image: radial-gradient(
+    200px circle at var(--gx, -999px) var(--gy, -999px),
+    #000,
+    transparent 75%
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.grid-glow.on {
+  opacity: 1;
 }
 
 /* Faint scanlines + vignette. Static, so it stays under reduced motion. */
@@ -392,11 +400,9 @@ main,
   100% { clip-path: inset(0 0 0 0); transform: none; opacity: 0; }
 }
 
-/* Decode text: elements start dimmed until JS resolves them; if JS never runs
-   or motion is reduced, they simply show normally. */
-html.js [data-decode]:not(.decoded) {
-  color: var(--fg-dim);
-}
-@media (prefers-reduced-motion: reduce) {
-  html.js [data-decode]:not(.decoded) { color: inherit; }
+/* Hero motion toggle: freeze any CSS animation while paused (WCAG 2.2.2). */
+html[data-motion="paused"] *,
+html[data-motion="paused"] *::before,
+html[data-motion="paused"] *::after {
+  animation-play-state: paused !important;
 }

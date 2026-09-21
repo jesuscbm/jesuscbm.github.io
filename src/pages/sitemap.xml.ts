@@ -1,5 +1,6 @@
 import type { APIContext } from "astro";
 import { getPublishedPosts, getAllTags, postPath } from "@/lib/blog";
+import { PUBLISHED_LANGS, localePath } from "@/i18n";
 
 // Hand-rolled so it stays at exactly /sitemap.xml (the path public/robots.txt
 // points at). @astrojs/sitemap would emit /sitemap-index.xml instead.
@@ -17,8 +18,8 @@ export async function GET(context: APIContext) {
     entries.push({ loc, lastmod });
   };
 
-  add("/");
-  add("/blogs/");
+  for (const page of ["/", "/projects/", "/blogs/"])
+    for (const lang of PUBLISHED_LANGS) add(localePath(lang, page));
   add("/tags/");
   for (const p of posts) {
     add(postPath(p), iso(p.data.updatedDate ?? p.data.pubDate));

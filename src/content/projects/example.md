@@ -20,4 +20,4 @@ To add a real dedicated page for a project:
 3. Optionally list `relatedPosts` (blog slugs); links are bidirectional with the
    post's `projects` front matter.
 
-The matching home card then gains a **Case study →** link to `/projects/<id>/`.
+The matching project then gains a **Case study →** link to `/projects/<id>/`.

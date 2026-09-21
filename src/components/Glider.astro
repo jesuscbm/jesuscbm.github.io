@@ -61,9 +61,11 @@ const SIZE = 20;
       frames.forEach((g, k) => (g.style.opacity = k === i ? "1" : "0"));
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Paused via the hero's motion toggle (<html data-motion="paused">).
+    const paused = () => document.documentElement.dataset.motion === "paused";
     show(0);
 
-    if (!reduce && frames.length === 4) {
+    if (!reduce && !paused() && frames.length === 4) {
       const off = -320; // start up-left in px (glider moves down-right)
       const moveT = 4500; // ms of travel (slow, graceful glide to home)
       const fast = 85; // gen delay at the start of the flight
@@ -88,10 +90,19 @@ const SIZE = 20;
         return fast + (slow - fast) * Math.sqrt(t);
       };
       const tick = () => {
-        step += 1;
-        show(step % 4);
+        if (!paused()) {
+          step += 1;
+          show(step % 4);
+        }
         window.setTimeout(tick, nextDelay());
       };
+      // pausing mid-flight lands it immediately
+      document.addEventListener("motionchange", () => {
+        if (!paused()) return;
+        svg.style.transition = "none";
+        svg.style.transform = "translate(0, 0)";
+        show(0);
+      });
       window.setTimeout(tick, nextDelay());
     }
   }

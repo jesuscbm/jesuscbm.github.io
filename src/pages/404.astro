@@ -1,17 +1,27 @@
 ---
+// GitHub Pages serves this one file for every missing path, in either
+// language, so the message is given in every published language.
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { isPublished } from "@/i18n";
+const es = isPublished("es");
 ---
 <BaseLayout title="404 · Not found | Jesús Blázquez" description="Page not found.">
   <section class="section notfound">
     <div class="container">
-      <p class="code">404</p>
+      <p class="code" aria-hidden="true">404</p>
       <h1 class="section-title">Segmentation fault</h1>
       <p class="msg">
         That address doesn't map to anything. The page may have moved or never
         existed.
       </p>
+      {es && (
+        <p class="msg" lang="es">
+          Esa dirección no apunta a nada. La página se ha movido o nunca existió.
+        </p>
+      )}
       <div class="actions">
         <a href="/" class="btn btn-primary">Back home</a>
+        {es && <a href="/es/" class="btn btn-ghost" lang="es" hreflang="es">Volver al inicio</a>}
         <a href="/blogs/" class="btn btn-ghost">Read the blog</a>
       </div>
     </div>
@@ -30,7 +40,13 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
   .msg {
     color: var(--fg-2);
     max-width: 32rem;
-    margin: 1rem auto 2rem;
+    margin: 1rem auto 0;
   }
-  .actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
 </style>

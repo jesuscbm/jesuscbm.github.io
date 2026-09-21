@@ -1,0 +1,24 @@
+---
+// The home page, rendered at / (English) and /es/ (Spanish).
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Hero from "@/components/sections/Hero.astro";
+import About from "@/components/sections/About.astro";
+import Experience from "@/components/sections/Experience.astro";
+import Projects from "@/components/sections/Projects.astro";
+import Writing from "@/components/sections/Writing.astro";
+import Education from "@/components/sections/Education.astro";
+import Contact from "@/components/sections/Contact.astro";
+import { getPortfolio } from "@/data/portfolio";
+import { getLang } from "@/i18n";
+
+const { meta } = getPortfolio(getLang(Astro.currentLocale));
+---
+<BaseLayout title={`${meta.title} · ${meta.tagline}`} description={meta.description}>
+  <Hero />
+  <About />
+  <Experience />
+  <Projects />
+  <Education />
+  <Writing />
+  <Contact />
+</BaseLayout>

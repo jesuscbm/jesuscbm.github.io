@@ -1,7 +1,14 @@
 ---
 import Icon from "@/components/Icon.astro";
 import { getPublishedPosts, postPath, postSlug } from "@/lib/blog";
+import { DEFAULT_LANG, getLang, localePath } from "@/i18n";
+import { dateFormat, getUI } from "@/i18n/ui";
+
+const lang = getLang(Astro.currentLocale);
+const t = getUI(lang);
 const posts = (await getPublishedPosts()).slice(0, 4);
+// Posts are English-only; mark them so screen readers switch voice.
+const postLang = lang === DEFAULT_LANG ? undefined : DEFAULT_LANG;
 
 // Deterministic pseudo-hash from the slug, styled like a short commit hash.
 function shortHash(s: string): string {
@@ -12,11 +19,7 @@ function shortHash(s: string): string {
   }
   return (h >>> 0).toString(16).padStart(8, "0").slice(0, 7);
 }
-const dateFmt = new Intl.DateTimeFormat("en-US", {
-  year: "numeric",
-  month: "short",
-  day: "2-digit",
-});
+const dateFmt = dateFormat(lang, { year: "numeric", month: "short", day: "2-digit" });
 ---
 {
   posts.length > 0 && (
@@ -24,32 +27,33 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
       <div class="container">
         <div class="writing-head">
           <div data-reveal>
-            <p class="eyebrow">writing</p>
-            <h2 class="section-title">git log --author=jesus</h2>
+            <p class="eyebrow">{t.writing.eyebrow}</p>
+            <h2 class="section-title">{t.writing.title}</h2>
+            {t.writing.englishOnly && <p class="note">{t.writing.englishOnly}</p>}
           </div>
-          <a href="/blogs/" class="all-link" data-reveal>
-            all posts <Icon name="arrow" size={16} />
+          <a href={localePath(lang, "/blogs/")} class="all-link" data-reveal>
+            {t.writing.all} <Icon name="arrow" size={16} />
           </a>
         </div>
 
         <ol class="log" data-reveal>
           {posts.map((post) => (
             <li class="log-row">
-              <a href={postPath(post)} class="log-link">
+              <a href={postPath(post)} class="log-link" hreflang={postLang}>
                 <span class="graph" aria-hidden="true">
                   <span class="node" />
                 </span>
-                <span class="hash">{shortHash(postSlug(post))}</span>
+                <span class="hash" aria-hidden="true">{shortHash(postSlug(post))}</span>
                 <span class="body">
-                  <span class="title">{post.data.title}</span>
+                  <span class="title" lang={postLang}>{post.data.title}</span>
                   <span class="meta">
                     <time datetime={post.data.pubDate.toISOString()}>
                       {dateFmt.format(post.data.pubDate)}
                     </time>
-                    {post.data.tags.slice(0, 3).map((t) => (
-                      <span class="t">#{t}</span>
+                    {post.data.tags.slice(0, 3).map((tag) => (
+                      <span class="t">#{tag}</span>
                     ))}
-                    {post.data.draft && <span class="draft">draft</span>}
+                    {post.data.draft && <span class="draft">{t.writing.draft}</span>}
                   </span>
                 </span>
                 <Icon name="arrow" size={15} class="go" />
@@ -70,11 +74,7 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
     gap: 1rem;
     flex-wrap: wrap;
   }
-  .writing-head .section-title {
-    font-family: var(--font-mono);
-    font-size: clamp(1.3rem, 3.2vw, 1.9rem);
-    letter-spacing: -0.01em;
-  }
+  .note { color: var(--fg-2); margin-top: 0.5rem; font-size: 0.95rem; }
   .all-link {
     display: inline-flex;
     align-items: center;
@@ -82,6 +82,7 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
     font-family: var(--font-mono);
     font-size: 0.88rem;
     color: var(--accent);
+    padding-block: 0.3rem;
   }
   .all-link:hover :global(svg) { transform: translateX(3px); }
   .all-link :global(svg) { transition: transform 0.2s ease; }
@@ -139,7 +140,7 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
   .body { min-width: 0; }
   .title {
     display: block;
-    font-family: var(--font-display);
+    font-family: var(--font-body);
     font-weight: 600;
     font-size: 1.02rem;
     white-space: nowrap;
@@ -155,7 +156,7 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
     color: var(--fg-dim);
     margin-top: 0.15rem;
   }
-  .meta .t { color: var(--accent-3); opacity: 0.85; }
+  .meta .t { color: var(--accent-3); }
   .meta .draft { color: var(--warn); }
   .log-link :global(.go) {
     color: var(--fg-dim);
@@ -166,5 +167,6 @@ const dateFmt = new Intl.DateTimeFormat("en-US", {
   @media (max-width: 560px) {
     .log-link { grid-template-columns: auto 1fr auto; gap: 0.7rem; }
     .hash { display: none; }
+    .title { white-space: normal; }
   }
 </style>
